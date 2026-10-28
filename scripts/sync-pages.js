@@ -40,9 +40,13 @@ if (!existsSync(normalizedHtml)) {
 // docs/ for /docs Pages folder option
 rmSync('docs', { recursive: true, force: true })
 mkdirSync('docs', { recursive: true })
-copy(join(dist, '.'), 'docs')
+copy(normalizedHtml, join('docs', 'index.html'))
+copy(join(dist, 'assets'), join('docs', 'assets'))
+if (existsSync(join(dist, 'photos'))) copy(join(dist, 'photos'), join('docs', 'photos'))
+if (existsSync(join(dist, 'favicon.svg'))) copy(join(dist, 'favicon.svg'), join('docs', 'favicon.svg'))
 writeFileSync('docs/CNAME', 'dospreton-stav.cz\n')
 writeFileSync(join('docs', '.nojekyll'), '')
+if (existsSync(join('docs', 'index.dev.html'))) rmSync(join('docs', 'index.dev.html'))
 
 // root publish for current Pages source (main /)
 copy(normalizedHtml, 'index.html')

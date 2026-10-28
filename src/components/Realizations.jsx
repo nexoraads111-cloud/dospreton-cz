@@ -1,23 +1,17 @@
-import { useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useInView } from '../hooks/useInView'
-import { photos } from '../photos'
-
-const ITEMS = photos.realizations
+import { CATEGORIES, gallery } from '../photos'
+import { useLightbox } from '../lightbox-context'
 
 export default function Realizations() {
-  const trackRef = useRef(null)
   const [ref, inView] = useInView()
-  const [index, setIndex] = useState(0)
+  const [filter, setFilter] = useState('all')
+  const { openAt } = useLightbox()
 
-  const scrollBy = (dir) => {
-    const track = trackRef.current
-    if (!track) return
-    const card = track.querySelector('.real-card')
-    const step = card ? card.offsetWidth + 20 : 320
-    const next = Math.max(0, Math.min(ITEMS.length - 1, index + dir))
-    setIndex(next)
-    track.scrollTo({ left: next * step, behavior: 'smooth' })
-  }
+  const items = useMemo(() => {
+    if (filter === 'all') return gallery
+    return gallery.filter((g) => g.category === filter)
+  }, [filter])
 
   return (
     <section id="realizace" className="realizations section" ref={ref}>
@@ -28,43 +22,53 @@ export default function Realizations() {
             Naše práce <em>v praxi</em>
           </h2>
         </header>
-      </div>
 
-      <div className={`realizations__wrap ${inView ? 'is-visible' : ''}`}>
-        <button
-          type="button"
-          className="realizations__nav realizations__nav--prev"
-          aria-label="Předchozí"
-          onClick={() => scrollBy(-1)}
+        <div
+          className={`gallery-filters ${inView ? 'is-visible' : ''}`}
+          role="tablist"
+          aria-label="Filtr kategorií"
         >
-          ‹
-        </button>
-
-        <div className="realizations__track" ref={trackRef}>
-          {ITEMS.map((item) => (
-            <article key={item.title} className="real-card">
-              <img src={item.image} alt={item.title} loading="lazy" />
-              <div className="real-card__caption">
-                <span>{item.title}</span>
-              </div>
-            </article>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              role="tab"
+              aria-selected={filter === cat.id}
+              className={`gallery-filters__btn ${filter === cat.id ? 'is-active' : ''}`}
+              onClick={() => setFilter(cat.id)}
+            >
+              {cat.label}
+            </button>
           ))}
         </div>
 
-        <button
-          type="button"
-          className="realizations__nav realizations__nav--next"
-          aria-label="Další"
-          onClick={() => scrollBy(1)}
-        >
-          ›
-        </button>
-      </div>
-
-      <div className="realizations__cta">
-        <a href="#kontakt" className="btn btn--primary btn--lg">
-          ZOBRAZIT VŠECHNY REALIZACE <span aria-hidden="true">→</span>
-        </a>
+        <div className={`gallery-grid ${inView ? 'is-visible' : ''}`} key={filter}>
+          {items.length === 0 ? (
+            <p className="gallery-empty">V této kategorii zatím nejsou fotografie.</p>
+          ) : (
+            items.map((item, i) => {
+              const fullIndex = gallery.findIndex((g) => g.id === item.id)
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="gallery-card"
+                  style={{ '--i': i }}
+                  onClick={() => openAt(fullIndex)}
+                  aria-label={`Otevřít: ${item.title}`}
+                >
+                  <img src={item.image} alt={item.title} loading="lazy" />
+                  <span className="gallery-card__caption">
+                    <span>{item.title}</span>
+                    <span className="gallery-card__zoom" aria-hidden="true">
+                      ↗
+                    </span>
+                  </span>
+                </button>
+              )
+            })
+          )}
+        </div>
       </div>
     </section>
   )

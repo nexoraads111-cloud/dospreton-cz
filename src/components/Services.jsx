@@ -1,5 +1,6 @@
 import { useInView } from '../hooks/useInView'
 import { photos } from '../photos'
+import { useLightbox } from '../lightbox-context'
 
 const SERVICES = [
   {
@@ -26,6 +27,7 @@ const SERVICES = [
 
 export default function Services() {
   const [ref, inView] = useInView()
+  const { openImage } = useLightbox()
 
   return (
     <section id="sluzby" className="services section" ref={ref}>
@@ -39,11 +41,13 @@ export default function Services() {
 
         <div className={`services__grid ${inView ? 'is-visible' : ''}`}>
           {SERVICES.map((service, i) => (
-            <a
+            <button
               key={service.title}
-              href="#kontakt"
+              type="button"
               className="service-card"
               style={{ '--i': i }}
+              onClick={() => openImage(service.image)}
+              aria-label={`${service.title} — otevřít fotografii`}
             >
               <div className="service-card__media">
                 <img src={service.image} alt={service.title} loading="lazy" />
@@ -55,7 +59,7 @@ export default function Services() {
                   →
                 </span>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       </div>
@@ -85,19 +89,13 @@ function ServiceIcon({ type }) {
   if (type === 'crane') {
     return (
       <svg {...props}>
-        <path
-          d="M4 20h16v2H4v-2zm2-2V8h2v10H6zm5 0V4h2l7 6h-5v8h-4z"
-          fill="currentColor"
-        />
+        <path d="M4 20h16v2H4v-2zm2-2V8h2v10H6zm5 0V4h2l7 6h-5v8h-4z" fill="currentColor" />
       </svg>
     )
   }
   return (
     <svg {...props}>
-      <path
-        d="M3 5h8v8H3V5zm10 0h8v4h-8V5zM3 15h4v4H3v-4zm6 0h12v4H9v-4z"
-        fill="currentColor"
-      />
+      <path d="M3 5h8v8H3V5zm10 0h8v4h-8V5zM3 15h4v4H3v-4zm6 0h12v4H9v-4z" fill="currentColor" />
     </svg>
   )
 }

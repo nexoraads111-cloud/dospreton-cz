@@ -1,6 +1,7 @@
 import { useInView } from '../hooks/useInView'
 import { company } from '../company'
 import { photos } from '../photos'
+import { useLightbox } from '../lightbox-context'
 
 const STATS = [
   { value: '1 000+', label: 'Realizovaných zakázek', icon: 'check' },
@@ -11,6 +12,7 @@ const STATS = [
 
 export default function About() {
   const [ref, inView] = useInView()
+  const { openImage } = useLightbox()
 
   return (
     <section id="o-nas" className="about" ref={ref}>
@@ -33,13 +35,19 @@ export default function About() {
         </div>
 
         <div className="about__aside">
-          <div className="about__photo">
+          <button
+            type="button"
+            className="about__photo"
+            onClick={() => openImage(photos.about)}
+            aria-label="Otevřít fotografii realizace"
+          >
             <img
               src={photos.about}
               alt="Realizace DOSPRETON — dlažba a obklady"
               loading="lazy"
             />
-          </div>
+          </button>
+
           <ul className="about__stats">
             {STATS.map((stat, i) => (
               <li key={stat.label} style={{ '--i': i }}>
