@@ -1,5 +1,6 @@
 import { useInView } from '../hooks/useInView'
 import { company } from '../company'
+import { photos } from '../photos'
 
 const STATS = [
   { value: '1 000+', label: 'Realizovaných zakázek', icon: 'check' },
@@ -31,19 +32,28 @@ export default function About() {
           </a>
         </div>
 
-        <ul className="about__stats">
-          {STATS.map((stat, i) => (
-            <li key={stat.label} style={{ '--i': i }}>
-              <div className="about__stat-icon">
-                <StatIcon type={stat.icon} />
-              </div>
-              <div>
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="about__aside">
+          <div className="about__photo">
+            <img
+              src={photos.about}
+              alt="Realizace DOSPRETON — dlažba a obklady"
+              loading="lazy"
+            />
+          </div>
+          <ul className="about__stats">
+            {STATS.map((stat, i) => (
+              <li key={stat.label} style={{ '--i': i }}>
+                <div className="about__stat-icon">
+                  <StatIcon type={stat.icon} />
+                </div>
+                <div>
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )

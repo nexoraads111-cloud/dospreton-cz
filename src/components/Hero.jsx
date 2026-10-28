@@ -1,7 +1,7 @@
 import { company } from '../company'
+import { photos } from '../photos'
 
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80'
+const HERO_IMG = photos.hero
 
 const BADGES = [
   { label: 'Kvalita a spolehlivost', icon: 'shield' },

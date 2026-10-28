@@ -1,28 +1,25 @@
 import { useInView } from '../hooks/useInView'
+import { photos } from '../photos'
 
 const SERVICES = [
   {
     title: 'Obklady a dlažby',
-    image:
-      'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80',
+    image: photos.services.tiles,
     icon: 'tiles',
   },
   {
     title: 'Zateplování fasád',
-    image:
-      'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+    image: photos.services.facade,
     icon: 'house',
   },
   {
     title: 'Rekonstrukce bytů a domů',
-    image:
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+    image: photos.services.renovate,
     icon: 'hammer',
   },
   {
     title: 'Stavební práce všeho druhu',
-    image:
-      'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
+    image: photos.services.general,
     icon: 'crane',
   },
 ]

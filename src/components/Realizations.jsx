@@ -1,38 +1,8 @@
 import { useRef, useState } from 'react'
 import { useInView } from '../hooks/useInView'
+import { photos } from '../photos'
 
-const ITEMS = [
-  {
-    title: 'Koupelna — obklady',
-    image:
-      'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    title: 'Fasáda rodinného domu',
-    image:
-      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    title: 'Rekonstrukce interiéru',
-    image:
-      'https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    title: 'Stavební práce',
-    image:
-      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    title: 'Moderní bydlení',
-    image:
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=80',
-  },
-  {
-    title: 'Venkovní úpravy',
-    image:
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=700&q=80',
-  },
-]
+const ITEMS = photos.realizations
 
 export default function Realizations() {
   const trackRef = useRef(null)
