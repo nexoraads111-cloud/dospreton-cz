@@ -1,34 +1,44 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { gallery } from './photos'
+import { useGallery } from './gallery-context'
 
 const LightboxContext = createContext(null)
 
 export function LightboxProvider({ children }) {
+  const { items } = useGallery()
   const [index, setIndex] = useState(null)
   const open = index !== null
 
-  const openAt = useCallback((i) => {
-    if (typeof i !== 'number' || i < 0 || i >= gallery.length) return
-    setIndex(i)
-  }, [])
+  const openAt = useCallback(
+    (i) => {
+      if (typeof i !== 'number' || i < 0 || i >= items.length) return
+      setIndex(i)
+    },
+    [items.length],
+  )
 
   const openImage = useCallback(
     (imagePath) => {
-      const i = gallery.findIndex((g) => g.image === imagePath)
+      const i = items.findIndex((g) => g.image === imagePath)
       openAt(i >= 0 ? i : 0)
     },
-    [openAt],
+    [items, openAt],
   )
 
   const close = useCallback(() => setIndex(null), [])
 
   const prev = useCallback(() => {
-    setIndex((i) => (i === null ? i : (i - 1 + gallery.length) % gallery.length))
-  }, [])
+    setIndex((i) => {
+      if (i === null || items.length === 0) return i
+      return (i - 1 + items.length) % items.length
+    })
+  }, [items.length])
 
   const next = useCallback(() => {
-    setIndex((i) => (i === null ? i : (i + 1) % gallery.length))
-  }, [])
+    setIndex((i) => {
+      if (i === null || items.length === 0) return i
+      return (i + 1) % items.length
+    })
+  }, [items.length])
 
   useEffect(() => {
     if (!open) return
@@ -45,9 +55,26 @@ export function LightboxProvider({ children }) {
     }
   }, [open, close, prev, next])
 
+  // Clamp index if gallery shrinks while open
+  useEffect(() => {
+    if (index !== null && index >= items.length) {
+      setIndex(items.length ? items.length - 1 : null)
+    }
+  }, [items.length, index])
+
   const value = useMemo(
-    () => ({ open, index, item: open ? gallery[index] : null, openAt, openImage, close, prev, next, total: gallery.length }),
-    [open, index, openAt, openImage, close, prev, next],
+    () => ({
+      open,
+      index,
+      item: open ? items[index] : null,
+      openAt,
+      openImage,
+      close,
+      prev,
+      next,
+      total: items.length,
+    }),
+    [open, index, items, openAt, openImage, close, prev, next],
   )
 
   return <LightboxContext.Provider value={value}>{children}</LightboxContext.Provider>

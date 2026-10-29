@@ -1,6 +1,6 @@
 export default function Logo({ className = '' }) {
   return (
-    <a href="#domu" className={`logo ${className}`} aria-label="DOSPRETON s.r.o. — Domů">
+    <a href="#/" className={`logo ${className}`} aria-label="DOSPRETON s.r.o. — Domů">
       <svg
         className="logo__mark"
         viewBox="0 0 48 48"

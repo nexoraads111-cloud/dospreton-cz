@@ -1,6 +1,9 @@
 
 dist
 dist-ssr
+.env
+.env.*
+!.env.example
 .DS_Store
 # Editor directories and files
 .idea
