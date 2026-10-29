@@ -24,12 +24,31 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Write browser Supabase config from secrets
+        env:
+          URL: ${{ secrets.VITE_SUPABASE_URL }}
+          KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -n "$URL" ] && [ -n "$KEY" ]; then
+            cat > js/supabase-config.js <<EOFCONFIG
+          window.DOSPRETON_SUPABASE = {
+            url: '$URL',
+            anonKey: '$KEY',
+          }
+          EOFCONFIG
+            echo "Wrote js/supabase-config.js from secrets"
+          else
+            echo "Secrets missing — using committed js/supabase-config.js if present"
+          fi
       - run: npm run build
-      - name: Add CNAME for custom domain
-        run: cp CNAME dist/CNAME 2>/dev/null || echo 'dospreton-stav.cz' > dist/CNAME
+      - name: Stage Pages artifact (repo root style)
+        run: |
+          mkdir -p _site
+          cp -a index.html admin.html favicon.svg CNAME .nojekyll assets photos css js supabase VANILLA-GALLERY.md _site/ 2>/dev/null || true
+          cp -a docs/. _site/ 2>/dev/null || true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: _site
 
   deploy:
     needs: build

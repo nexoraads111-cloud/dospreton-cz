@@ -86,13 +86,25 @@ function injectVanillaGallery(htmlPath) {
 injectVanillaGallery('index.html')
 injectVanillaGallery(join('docs', 'index.html'))
 
-// Copy static vanilla admin/gallery assets into docs/ for Pages folder option
-function copyIfExists(from, to) {
-  if (!existsSync(from)) return
-  mkdirSync(join(to, '..'), { recursive: true })
-  copy(from, to)
+function injectAdminRedirect(htmlPath) {
+  if (!existsSync(htmlPath)) return
+  let html = readFileSync(htmlPath, 'utf8')
+  if (html.includes('Legacy React #admin')) return
+  const snippet = `    <script>
+      // Legacy React #admin → vanilla admin.html
+      if (/^#\\/?admin\\b/i.test(location.hash)) {
+        location.replace(new URL('admin.html', location.href).href);
+      }
+    </script>
+`
+  html = html.replace('<div id="root"></div>', `<div id="root"></div>\n${snippet}`)
+  writeFileSync(htmlPath, html)
 }
 
+injectAdminRedirect('index.html')
+injectAdminRedirect(join('docs', 'index.html'))
+
+// Copy static vanilla admin/gallery assets into docs/ for Pages folder option
 for (const file of ['admin.html', 'VANILLA-GALLERY.md']) {
   if (existsSync(file)) copy(file, join('docs', file))
 }
@@ -104,6 +116,7 @@ for (const file of ['css/admin.css', 'css/public-gallery.css']) {
 }
 for (const file of [
   'js/supabase-config.example.js',
+  'js/supabase-config.js',
   'js/supabase-client.js',
   'js/public-gallery.js',
   'js/admin.js',

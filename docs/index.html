@@ -15,13 +15,20 @@
       rel="stylesheet"
     />
     <title>DOSPRETON s.r.o. | Stavební firma</title>
-    <script type="module" crossorigin src="./assets/index-DwHThPQQ.js"></script>
+    <script type="module" crossorigin src="./assets/index-BTEF-Mll.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-UoG_vs6k.css">
-    <link rel="stylesheet" href="./css/public-gallery.css" />
+      <link rel="stylesheet" href="./css/public-gallery.css" />
   </head>
   <body>
     <div id="root"></div>
-    <!-- Vanilla Supabase gallery (loads after React mounts #realizace) -->
+    <script>
+      // Legacy React #admin → vanilla admin.html
+      if (/^#\/?admin\b/i.test(location.hash)) {
+        location.replace(new URL('admin.html', location.href).href);
+      }
+    </script>
+
+      <!-- Vanilla Supabase gallery -->
     <script src="./js/supabase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="./js/supabase-client.js"></script>

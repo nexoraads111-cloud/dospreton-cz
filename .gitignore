@@ -25,7 +25,3 @@ pnpm-debug.log*
 !.vscode/extensions.json
 yarn-debug.log*
 yarn-error.log*
-
-# Vanilla Supabase client config (contains publishable key)
-js/supabase-config.js
-docs/js/supabase-config.js
