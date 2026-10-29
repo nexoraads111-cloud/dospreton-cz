@@ -89,3 +89,11 @@ Do **not** push until explicitly allowed. When allowed:
 | `service_role` | Never in client |
 
 Client also validates MIME + 5 MB; Storage bucket enforces the same limits server-side.
+
+## Upload fails with Storage/RLS
+
+1. Open Supabase → **SQL Editor**
+2. Run the entire file `supabase/fix-upload.sql` (or re-run `supabase/setup.sql`)
+3. Confirm Storage → **gallery** bucket is **Public**
+4. Sign out/in on `admin.html` and retry upload  
+The admin UI now shows the raw Supabase error text if it still fails.

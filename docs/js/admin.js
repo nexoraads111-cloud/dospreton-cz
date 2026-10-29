@@ -56,7 +56,8 @@
       }
     } catch (err) {
       console.error(err)
-      message('Nepodařilo se načíst seznam fotografií.', 'error')
+      const detail = api.formatError ? api.formatError(err) : err?.message || String(err)
+      message(`Nepodařilo se načíst seznam: ${detail}`, 'error')
     }
   }
 
@@ -139,8 +140,9 @@
       await refreshList()
     } catch (err) {
       console.error(err)
+      const detail = api.formatError ? api.formatError(err) : err?.message || String(err)
       message(
-        `Chyba nahrávání${done ? ` (po ${done} souborech)` : ''}. Zkontrolujte Storage/RLS.`,
+        `Chyba nahrávání${done ? ` (po ${done} souborech)` : ''}: ${detail}`,
         'error',
       )
     } finally {
@@ -161,7 +163,8 @@
       await refreshList()
     } catch (err) {
       console.error(err)
-      message('Smazání se nezdařilo (RLS / Storage policy).', 'error')
+      const detail = api.formatError ? api.formatError(err) : err?.message || String(err)
+      message(`Smazání se nezdařilo: ${detail}`, 'error')
       btn.disabled = false
     }
   })

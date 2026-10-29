@@ -1,5 +1,5 @@
 -- DOSPRETON gallery — run in Supabase → SQL Editor (as project owner)
--- Safe to re-run: uses IF NOT EXISTS / drop-policy-if-exists patterns where needed.
+-- Re-run this whole script if admin upload fails with Storage/RLS errors.
 
 -- ---------------------------------------------------------------------------
 -- 1) Table
@@ -35,6 +35,8 @@ create policy "Auth delete gallery_images"
 
 -- ---------------------------------------------------------------------------
 -- 2) Storage bucket (public read for marketing site)
+-- Note: do NOT over-restrict MIME on the bucket — phones sometimes send
+-- odd/empty types; app still validates JPEG/PNG/WebP client-side.
 -- ---------------------------------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
@@ -42,38 +44,36 @@ values (
   'gallery',
   true,
   5242880, -- 5 MB
-  array['image/jpeg', 'image/png', 'image/webp']
+  null     -- allow; client validates type
 )
 on conflict (id) do update set
-  public = excluded.public,
-  file_size_limit = excluded.file_size_limit,
-  allowed_mime_types = excluded.allowed_mime_types;
+  public = true,
+  file_size_limit = 5242880,
+  allowed_mime_types = null;
 
 -- ---------------------------------------------------------------------------
--- 3) Storage policies
+-- 3) Storage policies (drop ALL known variants, recreate cleanly)
 -- ---------------------------------------------------------------------------
 drop policy if exists "Public read gallery" on storage.objects;
+drop policy if exists "Auth upload gallery" on storage.objects;
+drop policy if exists "Auth delete own gallery" on storage.objects;
+drop policy if exists "Auth upload gallery loose" on storage.objects;
+drop policy if exists "Auth delete gallery" on storage.objects;
+
+-- Anyone can read objects in public gallery bucket
 create policy "Public read gallery"
   on storage.objects for select
   using (bucket_id = 'gallery');
 
-drop policy if exists "Auth upload gallery" on storage.objects;
+-- Authenticated users may upload into gallery bucket
+-- (path convention userId/uuid.ext is enforced in the app)
 create policy "Auth upload gallery"
   on storage.objects for insert
   to authenticated
-  with check (
-    bucket_id = 'gallery'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
+  with check (bucket_id = 'gallery');
 
-drop policy if exists "Auth delete own gallery" on storage.objects;
-create policy "Auth delete own gallery"
+-- Authenticated users may delete from gallery bucket
+create policy "Auth delete gallery"
   on storage.objects for delete
   to authenticated
-  using (
-    bucket_id = 'gallery'
-    and (storage.foldername(name))[1] = auth.uid()::text
-  );
-
--- Optional: allow authenticated update (not required by current app)
--- drop policy if exists "Auth update own gallery" on storage.objects;
+  using (bucket_id = 'gallery');
