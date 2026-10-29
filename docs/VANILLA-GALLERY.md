@@ -44,6 +44,8 @@ Use the **anon / publishable** key only. Never put `service_role` in these files
 
 **If upload fails with** `gallery_images` **RLS / 42501:** run `supabase/fix-gallery-images-rls.sql` (drops all table policies, grants SELECT to public + INSERT/DELETE to authenticated).
 
+**Category for Realizace filters:** run `supabase/add-gallery-category.sql`, then choose **Kategorie** in `admin.html` on upload (`obklady` / `koupelny` / `kamen` / `schody`). Uploads appear in **Naše práce v praxi** (unified grid), not a separate «Nahrané» block.
+
 ### B. Create admin user (no public signup)
 1. **Authentication** → **Users** → **Add user**  
 2. Email + password (this is the admin login for `admin.html`)  

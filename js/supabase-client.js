@@ -85,18 +85,10 @@
 
   async function fetchGalleryImages() {
     if (!db) throw new Error('Supabase není nakonfigurován (chybí URL/klíč nebo CDN).')
-    let data
-    let error
-    ;({ data, error } = await db
+    const { data, error } = await db
       .from('gallery_images')
-      .select('id, storage_path, alt_text, category, created_at')
-      .order('created_at', { ascending: false }))
-    if (error && /category/i.test(error.message || '')) {
-      ;({ data, error } = await db
-        .from('gallery_images')
-        .select('id, storage_path, alt_text, created_at')
-        .order('created_at', { ascending: false }))
-    }
+      .select('*')
+      .order('created_at', { ascending: false })
     if (error) throw error
     return (data || []).map((row) => ({
       id: row.id,

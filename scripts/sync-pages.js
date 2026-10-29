@@ -59,17 +59,16 @@ writeFileSync('.nojekyll', '')
 writeFileSync('CNAME', 'dospreton-stav.cz\n')
 
 // Marketing page: React Realizace owns the unified gallery (no separate «Nahrané» block).
-// Strip any leftover vanilla gallery inject from older syncs if present in a template.
-function stripLegacyVanillaGallery(htmlPath) {
+// Inject supabase-config.js BEFORE the Vite module so runtime fallback can read
+// window.DOSPRETON_SUPABASE if Vite env was missing at build time.
+function prepareMarketingIndex(htmlPath) {
   if (!existsSync(htmlPath)) return
   let html = readFileSync(htmlPath, 'utf8')
-  const before = html
   html = html.replace(/\s*<link rel="stylesheet" href="\.\/css\/public-gallery\.css[^"]*" \/>\n?/g, '\n')
   html = html.replace(
     /\s*<!-- Vanilla Supabase gallery[\s\S]*?<script src="\.\/js\/public-gallery\.js[^"]*"><\/script>\n?/g,
     '\n',
   )
-  // Also strip loose legacy script tags if comment marker missing
   html = html.replace(/\s*<script src="\.\/js\/crypto-polyfill\.js[^"]*"><\/script>\n?/g, '\n')
   html = html.replace(/\s*<script src="\.\/js\/supabase-config\.js[^"]*"><\/script>\n?/g, '\n')
   html = html.replace(
@@ -78,11 +77,18 @@ function stripLegacyVanillaGallery(htmlPath) {
   )
   html = html.replace(/\s*<script src="\.\/js\/supabase-client\.js[^"]*"><\/script>\n?/g, '\n')
   html = html.replace(/\s*<script src="\.\/js\/public-gallery\.js[^"]*"><\/script>\n?/g, '\n')
-  if (html !== before) writeFileSync(htmlPath, html)
+
+  if (!html.includes('js/supabase-config.js')) {
+    html = html.replace(
+      /(<script type="module"[^>]*src="\.\/assets\/[^"]+"[^>]*><\/script>)/,
+      '    <script src="./js/supabase-config.js?v=4"></script>\n    $1',
+    )
+  }
+  writeFileSync(htmlPath, html)
 }
 
-stripLegacyVanillaGallery('index.html')
-stripLegacyVanillaGallery(join('docs', 'index.html'))
+prepareMarketingIndex('index.html')
+prepareMarketingIndex(join('docs', 'index.html'))
 
 function injectAdminRedirect(htmlPath) {
   if (!existsSync(htmlPath)) return

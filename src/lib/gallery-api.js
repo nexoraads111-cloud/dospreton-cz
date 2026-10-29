@@ -20,20 +20,11 @@ export const UPLOAD_LIMITS = {
 export async function fetchRemoteGallery() {
   if (!isSupabaseConfigured || !db) return []
 
-  // Prefer category column; fall back if migration not applied yet
-  let data
-  let error
-  ;({ data, error } = await db
+  // Select * so missing optional columns (e.g. category) do not 400 the whole gallery
+  const { data, error } = await db
     .from('gallery_images')
-    .select('id, storage_path, alt_text, category, created_at')
-    .order('created_at', { ascending: false }))
-
-  if (error && /category/i.test(error.message || '')) {
-    ;({ data, error } = await db
-      .from('gallery_images')
-      .select('id, storage_path, alt_text, created_at')
-      .order('created_at', { ascending: false }))
-  }
+    .select('*')
+    .order('created_at', { ascending: false })
 
   if (error) {
     console.error('Gallery error:', error)

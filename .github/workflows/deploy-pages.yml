@@ -24,12 +24,13 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Write browser Supabase config from secrets
+      - name: Prepare Supabase config + Vite env
         env:
           URL: ${{ secrets.VITE_SUPABASE_URL }}
           KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
-          if [ -n "$URL" ] && [ -n "$KEY" ]; then
+          set -euo pipefail
+          if [ -n "${URL:-}" ] && [ -n "${KEY:-}" ]; then
             cat > js/supabase-config.js <<EOFCONFIG
           window.DOSPRETON_SUPABASE = {
             url: '$URL',
@@ -39,7 +40,21 @@ jobs:
             echo "Wrote js/supabase-config.js from secrets"
           else
             echo "Secrets missing — using committed js/supabase-config.js if present"
+            if [ -f js/supabase-config.js ]; then
+              URL=$(node -e "const m=require('fs').readFileSync('js/supabase-config.js','utf8').match(/url:\\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+              KEY=$(node -e "const m=require('fs').readFileSync('js/supabase-config.js','utf8').match(/anonKey:\\s*'([^']+)'/); if(!m) process.exit(1); process.stdout.write(m[1])")
+            fi
           fi
+          if [ -z "${URL:-}" ] || [ -z "${KEY:-}" ]; then
+            echo "::error::Missing Supabase URL/key — React Realizace cannot load gallery_images"
+            exit 1
+          fi
+          # Vite bakes these into the SPA at build time (required for public gallery merge)
+          {
+            echo "VITE_SUPABASE_URL=$URL"
+            echo "VITE_SUPABASE_ANON_KEY=$KEY"
+          } > .env.production
+          echo "Wrote .env.production for Vite build"
       - run: npm run build
       - name: Stage Pages artifact (repo root style)
         run: |
