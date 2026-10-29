@@ -97,13 +97,15 @@ export const gallery = [
 ]
 
 export const photos = {
-  hero: '/photos/tiling-04-hallway.jpg',
+  /** Full-bleed hero — bathroom atmosphere matching redesign mockup */
+  hero: '/photos/bath-01-wide.jpg',
   about: '/photos/tiling-05-yellow-nook.jpg',
+  contactBg: '/photos/tiling-09-stone-corner.jpg',
   services: {
-    tiles: '/photos/bath-04-niche.jpg',
+    tiles: '/photos/tiling-04-hallway.jpg',
+    bathroom: '/photos/bath-02-doorway.jpg',
     facade: '/photos/tiling-09-stone-corner.jpg',
-    renovate: '/photos/bath-02-doorway.jpg',
-    general: '/photos/tiling-07-patio.jpg',
+    stairs: '/photos/tiling-01-stairs-up.jpg',
   },
   realizations: gallery,
 }

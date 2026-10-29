@@ -15,22 +15,27 @@ export default function Realizations() {
   }, [filter, items])
 
   return (
-    <section id="realizace" className="realizations section" ref={ref}>
+    <section id="realizace" className="realizations section section--dark" ref={ref}>
       <div className="container">
-        <header className={`section-head ${inView ? 'is-visible' : ''}`}>
-          <p className="section-eyebrow">REALIZACE</p>
-          <h2 className="section-title">
-            Naše práce <em>v praxi</em>
-          </h2>
-          {status === 'loading' && (
-            <p className="gallery-status">Načítám galerii…</p>
-          )}
-          {status === 'error' && (
-            <p className="gallery-status gallery-status--warn">
-              Online galerii se nepodařilo načíst — zobrazuji lokální fotografie.
-            </p>
-          )}
+        <header className={`section-head section-head--split ${inView ? 'is-visible' : ''}`}>
+          <div>
+            <p className="section-eyebrow section-eyebrow--gold">REALIZACE</p>
+            <h2 className="section-title section-title--light">
+              Naše práce <em>v praxi</em>
+            </h2>
+          </div>
+          <a href="#realizace" className="btn btn--outline-gold">
+            VŠECHNY REALIZACE
+            <span aria-hidden="true">→</span>
+          </a>
         </header>
+
+        {status === 'loading' && <p className="gallery-status">Načítám galerii…</p>}
+        {status === 'error' && (
+          <p className="gallery-status gallery-status--warn">
+            Online galerii se nepodařilo načíst — zobrazuji lokální fotografie.
+          </p>
+        )}
 
         <div
           className={`gallery-filters ${inView ? 'is-visible' : ''}`}
@@ -51,7 +56,10 @@ export default function Realizations() {
           ))}
         </div>
 
-        <div className={`gallery-grid ${inView ? 'is-visible' : ''}`} key={`${filter}-${filtered.length}`}>
+        <div
+          className={`gallery-grid ${inView ? 'is-visible' : ''}`}
+          key={`${filter}-${filtered.length}`}
+        >
           {filtered.length === 0 ? (
             <p className="gallery-empty">V této kategorii zatím nejsou fotografie.</p>
           ) : (
@@ -66,7 +74,14 @@ export default function Realizations() {
                   onClick={() => openAt(fullIndex)}
                   aria-label={`Otevřít: ${item.title}`}
                 >
-                  <img src={item.image} alt={item.title} loading="lazy" />
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={640}
+                    height={480}
+                  />
                   <span className="gallery-card__caption">
                     <span>{item.title}</span>
                     <span className="gallery-card__zoom" aria-hidden="true">

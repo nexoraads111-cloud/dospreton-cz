@@ -5,23 +5,23 @@ import { useLightbox } from '../lightbox-context'
 const SERVICES = [
   {
     title: 'Obklady a dlažby',
+    text: 'Precizní pokládka obkladů a dlažeb v interiérech i exteriérech — trvanlivý výsledek s důrazem na detail.',
     image: photos.services.tiles,
-    icon: 'tiles',
   },
   {
-    title: 'Zateplování fasád',
+    title: 'Rekonstrukce koupelen',
+    text: 'Kompletní rekonstrukce koupelen od demontáže po finální obklady, včetně instalací a detailů.',
+    image: photos.services.bathroom,
+  },
+  {
+    title: 'Fasády a kámen',
+    text: 'Kamenné a fasádní obklady, které chrání stavbu a dávají domům charakter.',
     image: photos.services.facade,
-    icon: 'house',
   },
   {
-    title: 'Rekonstrukce bytů a domů',
-    image: photos.services.renovate,
-    icon: 'hammer',
-  },
-  {
-    title: 'Stavební práce všeho druhu',
-    image: photos.services.general,
-    icon: 'crane',
+    title: 'Schody',
+    text: 'Schodiště a podesty s přesnou pokládkou — bezpečně, čistě a na dlouhá léta.',
+    image: photos.services.stairs,
   },
 ]
 
@@ -30,72 +30,44 @@ export default function Services() {
   const { openImage } = useLightbox()
 
   return (
-    <section id="sluzby" className="services section" ref={ref}>
+    <section id="sluzby" className="services section section--dark" ref={ref}>
       <div className="container">
         <header className={`section-head ${inView ? 'is-visible' : ''}`}>
-          <p className="section-eyebrow">NAŠE SLUŽBY</p>
-          <h2 className="section-title">
-            Co pro Vás <em>provedeme?</em>
+          <p className="section-eyebrow section-eyebrow--gold">CO NABÍZÍME</p>
+          <h2 className="section-title section-title--light">
+            Naše <em>služby</em>
           </h2>
         </header>
 
         <div className={`services__grid ${inView ? 'is-visible' : ''}`}>
           {SERVICES.map((service, i) => (
-            <button
-              key={service.title}
-              type="button"
-              className="service-card"
-              style={{ '--i': i }}
-              onClick={() => openImage(service.image)}
-              aria-label={`${service.title} — otevřít fotografii`}
-            >
-              <div className="service-card__media">
-                <img src={service.image} alt={service.title} loading="lazy" />
+            <article key={service.title} className="service-card" style={{ '--i': i }}>
+              <button
+                type="button"
+                className="service-card__media"
+                onClick={() => openImage(service.image)}
+                aria-label={`${service.title} — otevřít fotografii`}
+              >
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  loading="lazy"
+                  decoding="async"
+                  width={640}
+                  height={800}
+                />
+              </button>
+              <div className="service-card__body">
+                <h3>{service.title}</h3>
+                <p>{service.text}</p>
+                <a href="#kontakt" className="text-link">
+                  VÍCE INFORMACÍ <span aria-hidden="true">→</span>
+                </a>
               </div>
-              <div className="service-card__bar">
-                <ServiceIcon type={service.icon} />
-                <span>{service.title}</span>
-                <span className="service-card__arrow" aria-hidden="true">
-                  →
-                </span>
-              </div>
-            </button>
+            </article>
           ))}
         </div>
       </div>
     </section>
-  )
-}
-
-function ServiceIcon({ type }) {
-  const props = { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true }
-  if (type === 'house') {
-    return (
-      <svg {...props}>
-        <path d="M12 3 3 10v11h6v-6h6v6h6V10L12 3z" fill="currentColor" />
-      </svg>
-    )
-  }
-  if (type === 'hammer') {
-    return (
-      <svg {...props}>
-        <path
-          d="m15.5 3.5 5 5-3 3-1.5-1.5-6.8 6.8a2 2 0 0 1-2.8 0l-.7-.7a2 2 0 0 1 0-2.8l6.8-6.8L11 5l3-3 1.5 1.5z"
-          fill="currentColor"
-        />
-      </svg>
-    )
-  }
-  if (type === 'crane') {
-    return (
-      <svg {...props}>
-        <path d="M4 20h16v2H4v-2zm2-2V8h2v10H6zm5 0V4h2l7 6h-5v8h-4z" fill="currentColor" />
-      </svg>
-    )
-  }
-  return (
-    <svg {...props}>
-      <path d="M3 5h8v8H3V5zm10 0h8v4h-8V5zM3 15h4v4H3v-4zm6 0h12v4H9v-4z" fill="currentColor" />
-    </svg>
   )
 }

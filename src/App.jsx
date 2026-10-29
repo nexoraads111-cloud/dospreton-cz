@@ -1,5 +1,6 @@
 import Header from './components/Header'
 import Hero from './components/Hero'
+import TrustBar from './components/TrustBar'
 import Services from './components/Services'
 import About from './components/About'
 import Realizations from './components/Realizations'
@@ -15,9 +16,10 @@ export default function App() {
         <Header />
         <main>
           <Hero />
+          <TrustBar />
           <Services />
-          <About />
           <Realizations />
+          <About />
         </main>
         <Contact />
         <Lightbox />
