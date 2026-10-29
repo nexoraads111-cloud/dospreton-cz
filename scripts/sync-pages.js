@@ -58,4 +58,58 @@ if (existsSync(join(dist, 'favicon.svg'))) copy(join(dist, 'favicon.svg'), 'favi
 writeFileSync('.nojekyll', '')
 writeFileSync('CNAME', 'dospreton-stav.cz\n')
 
-console.log('Synced dist → docs/ and repo root for GitHub Pages')
+// Re-inject vanilla Supabase gallery assets into published index shells
+function injectVanillaGallery(htmlPath) {
+  if (!existsSync(htmlPath)) return
+  let html = readFileSync(htmlPath, 'utf8')
+  if (html.includes('js/public-gallery.js')) return
+  if (!html.includes('public-gallery.css')) {
+    html = html.replace(
+      '</head>',
+      '    <link rel="stylesheet" href="./css/public-gallery.css" />\n  </head>',
+    )
+  }
+  if (!html.includes('js/public-gallery.js')) {
+    html = html.replace(
+      '</body>',
+      `    <!-- Vanilla Supabase gallery -->
+    <script src="./js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/supabase-client.js"></script>
+    <script src="./js/public-gallery.js"></script>
+  </body>`,
+    )
+  }
+  writeFileSync(htmlPath, html)
+}
+
+injectVanillaGallery('index.html')
+injectVanillaGallery(join('docs', 'index.html'))
+
+// Copy static vanilla admin/gallery assets into docs/ for Pages folder option
+function copyIfExists(from, to) {
+  if (!existsSync(from)) return
+  mkdirSync(join(to, '..'), { recursive: true })
+  copy(from, to)
+}
+
+for (const file of ['admin.html', 'VANILLA-GALLERY.md']) {
+  if (existsSync(file)) copy(file, join('docs', file))
+}
+mkdirSync('docs/css', { recursive: true })
+mkdirSync('docs/js', { recursive: true })
+mkdirSync('docs/supabase', { recursive: true })
+for (const file of ['css/admin.css', 'css/public-gallery.css']) {
+  if (existsSync(file)) copy(file, join('docs', file))
+}
+for (const file of [
+  'js/supabase-config.example.js',
+  'js/supabase-client.js',
+  'js/public-gallery.js',
+  'js/admin.js',
+]) {
+  if (existsSync(file)) copy(file, join('docs', file))
+}
+if (existsSync('supabase/setup.sql')) copy('supabase/setup.sql', join('docs', 'supabase', 'setup.sql'))
+
+console.log('Synced dist → docs/ and repo root for GitHub Pages (+ vanilla gallery assets)')

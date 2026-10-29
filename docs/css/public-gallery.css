@@ -1,0 +1,168 @@
+/* Vanilla public gallery — matches DOSPRETON black / white / gold */
+
+.dospreton-public-gallery {
+  --pg-gold: #f1b317;
+  --pg-black: #0a0a0a;
+  --pg-muted: #8a8a8a;
+  padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+  background: #f6f6f4;
+  color: #1a1a1a;
+}
+
+.dospreton-public-gallery__inner {
+  width: min(100% - 1.5rem, 1180px);
+  margin-inline: auto;
+}
+
+.dospreton-public-gallery__eyebrow {
+  margin: 0 0 0.5rem;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pg-muted);
+}
+
+.dospreton-public-gallery__title {
+  margin: 0 0 1.25rem;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.dospreton-public-gallery__title em {
+  font-style: normal;
+  color: var(--pg-gold);
+}
+
+.dospreton-public-gallery__status {
+  margin: 0 0 1rem;
+  color: var(--pg-muted);
+  font-size: 0.95rem;
+}
+
+.dospreton-public-gallery__status.is-error {
+  color: #b45309;
+}
+
+.dospreton-public-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 16px;
+}
+
+.dospreton-public-gallery__grid figure {
+  margin: 0;
+  background: var(--pg-black);
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  cursor: zoom-in;
+  position: relative;
+}
+
+.dospreton-public-gallery__grid button.dospreton-public-gallery__item {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--pg-black);
+  cursor: zoom-in;
+  text-align: left;
+  color: #fff;
+  font: inherit;
+}
+
+.dospreton-public-gallery__grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.dospreton-public-gallery__caption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 1.25rem 0.85rem 0.75rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 0.92rem;
+}
+
+/* Simple lightbox */
+.dospreton-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: none;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.dospreton-lightbox.is-open {
+  display: grid;
+}
+
+.dospreton-lightbox img {
+  max-width: min(100%, 1100px);
+  max-height: min(80vh, 900px);
+  object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.dospreton-lightbox__close,
+.dospreton-lightbox__nav {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+.dospreton-lightbox__close {
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+.dospreton-lightbox__nav--prev {
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dospreton-lightbox__nav--next {
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.dospreton-lightbox__close:hover,
+.dospreton-lightbox__nav:hover {
+  background: var(--pg-gold);
+  color: #000;
+  border-color: var(--pg-gold);
+}
+
+.dospreton-lightbox__meta {
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  color: #fff;
+  font-family: 'Barlow Condensed', 'Barlow', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-align: center;
+  max-width: 90vw;
+}

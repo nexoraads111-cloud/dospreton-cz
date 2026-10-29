@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Admin galerie | DOSPRETON s.r.o.</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/admin.css" />
+  </head>
+  <body>
+    <div class="admin-shell">
+      <header class="admin-top">
+        <a class="admin-brand" href="./index.html" aria-label="DOSPRETON — web">
+          <svg width="40" height="40" viewBox="0 0 48 48" aria-hidden="true">
+            <rect x="4" y="22" width="12" height="20" fill="currentColor" />
+            <rect x="18" y="12" width="12" height="30" fill="currentColor" />
+            <rect x="32" y="4" width="12" height="38" fill="currentColor" />
+          </svg>
+          <span>
+            <strong>DOSPRETON s.r.o.</strong>
+            <span>ADMIN GALERIE</span>
+          </span>
+        </a>
+        <div class="admin-top-actions">
+          <a class="btn btn-outline" href="./index.html">← Web</a>
+          <button type="button" class="btn btn-primary hidden" id="logout">Odhlásit</button>
+        </div>
+      </header>
+
+      <main class="panel">
+        <h1>Administrace galerie</h1>
+        <p class="lead">
+          Nahrávejte fotografie realizací z telefonu nebo počítače. Soubory JPEG / PNG / WebP,
+          max&nbsp;5&nbsp;MB. Veřejný web je načte ze Supabase po obnovení stránky.
+        </p>
+
+        <div id="admin-msg" class="msg" role="status" aria-live="polite"></div>
+
+        <div id="config-missing" class="hidden">
+          <p class="lead">
+            Chybí konfigurace Supabase. Zkopírujte
+            <code>js/supabase-config.example.js</code> →
+            <code>js/supabase-config.js</code> a doplňte Project URL + publishable key. Postup:
+            <code>VANILLA-GALLERY.md</code>.
+          </p>
+        </div>
+
+        <section id="login-view">
+          <form id="login-form" class="form">
+            <h2>Přihlášení</h2>
+            <label>
+              E-mail
+              <input id="email" name="email" type="email" autocomplete="username" required />
+            </label>
+            <label>
+              Heslo
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+            </label>
+            <button type="submit" class="btn btn-primary">Přihlásit</button>
+            <p class="hint">Účet vytvořte v Supabase → Authentication → Users (bez veřejné registrace).</p>
+          </form>
+        </section>
+
+        <section id="app-view" class="hidden">
+          <p id="user-line" class="user-line"></p>
+
+          <form id="upload-form" class="form">
+            <h2>Nahrát fotografie</h2>
+            <label>
+              Soubory (více najednou)
+              <input
+                id="photos"
+                name="photos"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                required
+              />
+            </label>
+            <label>
+              Popisek (volitelný, společný)
+              <input id="alt-text" name="alt" type="text" placeholder="např. Koupelna — Praha" />
+            </label>
+            <button type="submit" class="btn btn-primary">Nahrát</button>
+            <p class="hint">Úložiště: bucket <code>gallery</code>, cesta <code>{userId}/{uuid}.ext</code>.</p>
+          </form>
+
+          <div class="list-head">
+            <h2>Nahrané fotografie</h2>
+            <button type="button" class="btn btn-outline" id="refresh">Obnovit</button>
+          </div>
+          <p id="list-empty" class="empty hidden">Zatím žádné fotografie.</p>
+          <div id="thumbs" class="thumbs"></div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Order: config → CDN → client → page -->
+    <script src="./js/supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="./js/supabase-client.js"></script>
+    <script src="./js/admin.js"></script>
+    <script>
+      // Show logout when app view is visible
+      const logoutBtn = document.getElementById('logout')
+      const appView = document.getElementById('app-view')
+      const mo = new MutationObserver(() => {
+        logoutBtn.classList.toggle('hidden', appView.classList.contains('hidden'))
+      })
+      mo.observe(appView, { attributes: true, attributeFilter: ['class'] })
+    </script>
+  </body>
+</html>

@@ -68,7 +68,7 @@ export default function Contact() {
 
         <p className="contact__copy">
           © {new Date().getFullYear()} {company.name}. Všechna práva vyhrazena.
-          <a className="contact__admin-link" href="#admin">
+          <a className="contact__admin-link" href="./admin.html">
             Admin galerie
           </a>
         </p>
