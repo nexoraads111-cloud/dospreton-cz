@@ -42,6 +42,8 @@ Use the **anon / publishable** key only. Never put `service_role` in these files
 3. Paste contents of `supabase/setup.sql` → **Run**  
    Creates/updates: `gallery_images`, public bucket `gallery` (5 MB, jpeg/png/webp), RLS + storage policies.
 
+**If upload fails with** `gallery_images` **RLS / 42501:** run `supabase/fix-gallery-images-rls.sql` (drops all table policies, grants SELECT to public + INSERT/DELETE to authenticated).
+
 ### B. Create admin user (no public signup)
 1. **Authentication** → **Users** → **Add user**  
 2. Email + password (this is the admin login for `admin.html`)  

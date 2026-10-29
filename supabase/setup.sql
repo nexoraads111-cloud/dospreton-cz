@@ -14,21 +14,37 @@ create table if not exists public.gallery_images (
 create index if not exists gallery_images_created_at_idx
   on public.gallery_images (created_at desc);
 
+grant usage on schema public to anon, authenticated;
+grant select on table public.gallery_images to anon, authenticated;
+grant insert, delete on table public.gallery_images to authenticated;
+
 alter table public.gallery_images enable row level security;
 
-drop policy if exists "Public read gallery_images" on public.gallery_images;
-create policy "Public read gallery_images"
+-- Drop any prior policies (name variants), then recreate
+do $$
+declare
+  r record;
+begin
+  for r in
+    select policyname
+    from pg_policies
+    where schemaname = 'public' and tablename = 'gallery_images'
+  loop
+    execute format('drop policy if exists %I on public.gallery_images', r.policyname);
+  end loop;
+end $$;
+
+create policy "gallery_images_select_public"
   on public.gallery_images for select
+  to anon, authenticated
   using (true);
 
-drop policy if exists "Auth insert gallery_images" on public.gallery_images;
-create policy "Auth insert gallery_images"
+create policy "gallery_images_insert_authenticated"
   on public.gallery_images for insert
   to authenticated
   with check (true);
 
-drop policy if exists "Auth delete gallery_images" on public.gallery_images;
-create policy "Auth delete gallery_images"
+create policy "gallery_images_delete_authenticated"
   on public.gallery_images for delete
   to authenticated
   using (true);

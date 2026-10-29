@@ -129,5 +129,11 @@ if (existsSync('supabase/setup.sql')) copy('supabase/setup.sql', join('docs', 's
 if (existsSync('supabase/fix-upload.sql')) {
   copy('supabase/fix-upload.sql', join('docs', 'supabase', 'fix-upload.sql'))
 }
+if (existsSync('supabase/fix-gallery-images-rls.sql')) {
+  copy(
+    'supabase/fix-gallery-images-rls.sql',
+    join('docs', 'supabase', 'fix-gallery-images-rls.sql'),
+  )
+}
 
 console.log('Synced dist → docs/ and repo root for GitHub Pages (+ vanilla gallery assets)')
