@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/admin.css" />
+    <link rel="stylesheet" href="./css/admin.css?v=2" />
   </head>
   <body>
     <div class="admin-shell">
@@ -108,11 +108,12 @@
       </main>
     </div>
 
-    <!-- Order: config → CDN → client → page -->
-    <script src="./js/supabase-config.js"></script>
+    <!-- Order: polyfill FIRST → config → CDN → client → page -->
+    <script src="./js/crypto-polyfill.js?v=2"></script>
+    <script src="./js/supabase-config.js?v=2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="./js/supabase-client.js"></script>
-    <script src="./js/admin.js"></script>
+    <script src="./js/supabase-client.js?v=2"></script>
+    <script src="./js/admin.js?v=2"></script>
     <script>
       // Show logout when app view is visible
       const logoutBtn = document.getElementById('logout')

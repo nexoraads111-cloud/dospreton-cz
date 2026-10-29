@@ -66,17 +66,18 @@ function injectVanillaGallery(htmlPath) {
   if (!html.includes('public-gallery.css')) {
     html = html.replace(
       '</head>',
-      '    <link rel="stylesheet" href="./css/public-gallery.css" />\n  </head>',
+      '    <link rel="stylesheet" href="./css/public-gallery.css?v=2" />\n  </head>',
     )
   }
   if (!html.includes('js/public-gallery.js')) {
     html = html.replace(
       '</body>',
-      `    <!-- Vanilla Supabase gallery -->
-    <script src="./js/supabase-config.js"></script>
+      `    <!-- Vanilla Supabase gallery: polyfill FIRST -->
+    <script src="./js/crypto-polyfill.js?v=2"></script>
+    <script src="./js/supabase-config.js?v=2"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="./js/supabase-client.js"></script>
-    <script src="./js/public-gallery.js"></script>
+    <script src="./js/supabase-client.js?v=2"></script>
+    <script src="./js/public-gallery.js?v=2"></script>
   </body>`,
     )
   }
@@ -115,6 +116,7 @@ for (const file of ['css/admin.css', 'css/public-gallery.css']) {
   if (existsSync(file)) copy(file, join('docs', file))
 }
 for (const file of [
+  'js/crypto-polyfill.js',
   'js/supabase-config.example.js',
   'js/supabase-config.js',
   'js/supabase-client.js',
@@ -124,5 +126,8 @@ for (const file of [
   if (existsSync(file)) copy(file, join('docs', file))
 }
 if (existsSync('supabase/setup.sql')) copy('supabase/setup.sql', join('docs', 'supabase', 'setup.sql'))
+if (existsSync('supabase/fix-upload.sql')) {
+  copy('supabase/fix-upload.sql', join('docs', 'supabase', 'fix-upload.sql'))
+}
 
 console.log('Synced dist → docs/ and repo root for GitHub Pages (+ vanilla gallery assets)')
