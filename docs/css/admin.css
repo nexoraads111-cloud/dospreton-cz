@@ -215,7 +215,8 @@ a:hover {
 .form input[type='email'],
 .form input[type='password'],
 .form input[type='text'],
-.form input[type='file'] {
+.form input[type='file'],
+.form select {
   width: 100%;
   min-height: 48px;
   padding: 0.7rem 0.85rem;
@@ -280,6 +281,14 @@ a:hover {
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.7);
   word-break: break-word;
+}
+
+.thumb-cat {
+  font-family: var(--display, inherit);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.68rem !important;
+  color: var(--gold) !important;
 }
 
 .thumb .btn {

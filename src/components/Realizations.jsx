@@ -6,13 +6,8 @@ import { useLightbox } from '../lightbox-context'
 export default function Realizations() {
   const [ref, inView] = useInView()
   const [filter, setFilter] = useState('all')
-  const { items, filters, status, configured } = useGallery()
+  const { items, filters, status } = useGallery()
   const { openAt } = useLightbox()
-
-  const visibleFilters = useMemo(() => {
-    const hasUploaded = items.some((i) => i.category === 'nahrane')
-    return filters.filter((f) => f.id !== 'nahrane' || hasUploaded || configured)
-  }, [filters, items, configured])
 
   const filtered = useMemo(() => {
     if (filter === 'all') return items
@@ -42,7 +37,7 @@ export default function Realizations() {
           role="tablist"
           aria-label="Filtr kategorií"
         >
-          {visibleFilters.map((cat) => (
+          {filters.map((cat) => (
             <button
               key={cat.id}
               type="button"

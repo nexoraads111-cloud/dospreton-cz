@@ -45,10 +45,17 @@
       for (const row of rows) {
         const fig = document.createElement('figure')
         fig.className = 'thumb'
+        const catLabel = {
+          obklady: 'Obklady',
+          koupelny: 'Koupelny',
+          kamen: 'Fasády / kámen',
+          schody: 'Schody',
+        }[row.category] || row.category || 'Obklady'
         fig.innerHTML = `
           <img src="${row.url}" alt="${escapeAttr(row.alt)}" loading="lazy" />
           <figcaption>
             <span>${escapeHtml(row.alt)}</span>
+            <span class="thumb-cat">${escapeHtml(catLabel)}</span>
             <button type="button" class="btn btn-danger" data-id="${row.id}" data-path="${escapeAttr(row.storagePath)}">Smazat</button>
           </figcaption>
         `
@@ -120,6 +127,7 @@
 
     const input = $('#photos')
     const alt = $('#alt-text').value
+    const category = $('#category')?.value || 'obklady'
     const check = api.validateFiles(input.files)
     if (!check.ok) {
       message(check.error, 'error')
@@ -132,7 +140,7 @@
     try {
       for (const file of check.files) {
         message(`Nahrávám ${done + 1}/${check.files.length}: ${file.name}`, 'info')
-        await api.uploadOne(file, user.id, alt)
+        await api.uploadOne(file, user.id, alt, category)
         done += 1
       }
       message(`Hotovo — nahráno ${done} fotografií.`, 'ok')

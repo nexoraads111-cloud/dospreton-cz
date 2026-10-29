@@ -1,4 +1,5 @@
 import { db, isSupabaseConfigured, publicGalleryUrl, GALLERY_BUCKET } from './supabase'
+import { resolveGalleryCategory } from './gallery-category'
 
 const ALLOWED_TYPES = {
   'image/jpeg': 'jpg',
@@ -13,16 +14,26 @@ export const UPLOAD_LIMITS = {
 }
 
 /**
- * Load rows from gallery_images and map to public URLs.
+ * Load rows from gallery_images and map to public URLs + Realizace categories.
  * @returns {Promise<Array<{ id: string, title: string, image: string, category: string, source: string, storagePath?: string }>>}
  */
 export async function fetchRemoteGallery() {
   if (!isSupabaseConfigured || !db) return []
 
-  const { data, error } = await db
+  // Prefer category column; fall back if migration not applied yet
+  let data
+  let error
+  ;({ data, error } = await db
     .from('gallery_images')
-    .select('id, storage_path, alt_text, created_at')
-    .order('created_at', { ascending: false })
+    .select('id, storage_path, alt_text, category, created_at')
+    .order('created_at', { ascending: false }))
+
+  if (error && /category/i.test(error.message || '')) {
+    ;({ data, error } = await db
+      .from('gallery_images')
+      .select('id, storage_path, alt_text, created_at')
+      .order('created_at', { ascending: false }))
+  }
 
   if (error) {
     console.error('Gallery error:', error)
@@ -37,7 +48,7 @@ export async function fetchRemoteGallery() {
         id: `remote-${photo.id || photo.storage_path}`,
         title: photo.alt_text || 'Fotografie realizace',
         image,
-        category: 'nahrane',
+        category: resolveGalleryCategory(photo),
         source: 'supabase',
         storagePath: photo.storage_path,
       }
@@ -66,9 +77,11 @@ export function validateUploadFiles(fileList) {
  * Upload files to storage + insert gallery_images rows.
  * Rolls back storage object if DB insert fails.
  */
-export async function uploadGalleryFiles(files, user, altText = '') {
+export async function uploadGalleryFiles(files, user, altText = '', category = 'obklady') {
   if (!db) throw new Error('Supabase není nakonfigurován.')
   if (!user?.id) throw new Error('Nejste přihlášeni.')
+
+  const cat = resolveGalleryCategory({ category })
 
   for (const file of files) {
     const ext = ALLOWED_TYPES[file.type]
@@ -80,10 +93,17 @@ export async function uploadGalleryFiles(files, user, altText = '') {
     })
     if (uploadError) throw uploadError
 
-    const { error: rowError } = await db.from('gallery_images').insert({
+    const row = {
       storage_path: path,
       alt_text: altText.trim() || file.name,
-    })
+      category: cat,
+    }
+
+    let { error: rowError } = await db.from('gallery_images').insert(row)
+    if (rowError && /category/i.test(rowError.message || '')) {
+      delete row.category
+      ;({ error: rowError } = await db.from('gallery_images').insert(row))
+    }
 
     if (rowError) {
       await db.storage.from(GALLERY_BUCKET).remove([path])

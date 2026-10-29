@@ -70,17 +70,39 @@
     return data?.publicUrl || ''
   }
 
+  const CATEGORY_IDS = ['obklady', 'koupelny', 'kamen', 'schody']
+
+  function resolveCategory(row) {
+    const raw = String(row?.category || '').trim().toLowerCase()
+    if (CATEGORY_IDS.includes(raw)) return raw
+    const text = `${row?.alt_text || row?.alt || ''} ${row?.storage_path || ''}`.toLowerCase()
+    if (/koupel|vana|sprch|bath/.test(text)) return 'koupelny'
+    if (/schod|stairs|podest/.test(text)) return 'schody'
+    if (/kamen|fas[aá]d|stone/.test(text)) return 'kamen'
+    if (/obklad|dla[zž]|tile|terasa|balkon|chodba/.test(text)) return 'obklady'
+    return 'obklady'
+  }
+
   async function fetchGalleryImages() {
     if (!db) throw new Error('Supabase není nakonfigurován (chybí URL/klíč nebo CDN).')
-    const { data, error } = await db
+    let data
+    let error
+    ;({ data, error } = await db
       .from('gallery_images')
-      .select('id, storage_path, alt_text, created_at')
-      .order('created_at', { ascending: false })
+      .select('id, storage_path, alt_text, category, created_at')
+      .order('created_at', { ascending: false }))
+    if (error && /category/i.test(error.message || '')) {
+      ;({ data, error } = await db
+        .from('gallery_images')
+        .select('id, storage_path, alt_text, created_at')
+        .order('created_at', { ascending: false }))
+    }
     if (error) throw error
     return (data || []).map((row) => ({
       id: row.id,
       storagePath: row.storage_path,
       alt: row.alt_text || 'Fotografie realizace',
+      category: resolveCategory(row),
       createdAt: row.created_at,
       url: publicUrl(row.storage_path),
     }))
@@ -119,7 +141,7 @@
   /**
    * Upload one file + insert DB row. Rolls back storage object if insert fails.
    */
-  async function uploadOne(file, userId, altText) {
+  async function uploadOne(file, userId, altText, category) {
     const normalized = normalizeFile(file)
     const ext = ALLOWED_TYPES[normalized.type]
     if (!ext) {
@@ -138,10 +160,17 @@
       throw uploadError
     }
 
-    const { error: rowError } = await db.from('gallery_images').insert({
+    const cat = resolveCategory({ category, alt_text: altText })
+    const row = {
       storage_path: path,
       alt_text: (altText || '').trim() || normalized.name,
-    })
+      category: cat,
+    }
+    let { error: rowError } = await db.from('gallery_images').insert(row)
+    if (rowError && /category/i.test(rowError.message || '')) {
+      delete row.category
+      ;({ error: rowError } = await db.from('gallery_images').insert(row))
+    }
     if (rowError) {
       await db.storage.from(GALLERY_BUCKET).remove([path])
       rowError.message = `DB gallery_images: ${formatError(rowError)}`
@@ -176,8 +205,10 @@
     GALLERY_BUCKET,
     ALLOWED_TYPES,
     MAX_BYTES,
+    CATEGORY_IDS,
     formatError,
     publicUrl,
+    resolveCategory,
     fetchGalleryImages,
     validateFiles,
     uploadOne,

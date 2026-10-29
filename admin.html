@@ -12,7 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./css/admin.css?v=2" />
+    <link rel="stylesheet" href="./css/admin.css?v=3" />
   </head>
   <body>
     <div class="admin-shell">
@@ -91,11 +91,23 @@
               />
             </label>
             <label>
+              Kategorie (filtr Realizace)
+              <select id="category" name="category" required>
+                <option value="obklady">Obklady</option>
+                <option value="koupelny">Koupelny</option>
+                <option value="kamen">Fasády / kámen</option>
+                <option value="schody">Schody</option>
+              </select>
+            </label>
+            <label>
               Popisek (volitelný, společný)
               <input id="alt-text" name="alt" type="text" placeholder="např. Koupelna — Praha" />
             </label>
             <button type="submit" class="btn btn-primary">Nahrát</button>
-            <p class="hint">Úložiště: bucket <code>gallery</code>, cesta <code>{userId}/{uuid}.ext</code>.</p>
+            <p class="hint">
+              Fotografie se zobrazí v sekci <strong>Naše práce v praxi</strong> pod zvoleným filtrem.
+              Úložiště: bucket <code>gallery</code>, cesta <code>{userId}/{uuid}.ext</code>.
+            </p>
           </form>
 
           <div class="list-head">
@@ -109,11 +121,11 @@
     </div>
 
     <!-- Order: polyfill FIRST → config → CDN → client → page -->
-    <script src="./js/crypto-polyfill.js?v=2"></script>
-    <script src="./js/supabase-config.js?v=2"></script>
+    <script src="./js/crypto-polyfill.js?v=3"></script>
+    <script src="./js/supabase-config.js?v=3"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="./js/supabase-client.js?v=2"></script>
-    <script src="./js/admin.js?v=2"></script>
+    <script src="./js/supabase-client.js?v=3"></script>
+    <script src="./js/admin.js?v=3"></script>
     <script>
       // Show logout when app view is visible
       const logoutBtn = document.getElementById('logout')

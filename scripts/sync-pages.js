@@ -58,34 +58,31 @@ if (existsSync(join(dist, 'favicon.svg'))) copy(join(dist, 'favicon.svg'), 'favi
 writeFileSync('.nojekyll', '')
 writeFileSync('CNAME', 'dospreton-stav.cz\n')
 
-// Re-inject vanilla Supabase gallery assets into published index shells
-function injectVanillaGallery(htmlPath) {
+// Marketing page: React Realizace owns the unified gallery (no separate «Nahrané» block).
+// Strip any leftover vanilla gallery inject from older syncs if present in a template.
+function stripLegacyVanillaGallery(htmlPath) {
   if (!existsSync(htmlPath)) return
   let html = readFileSync(htmlPath, 'utf8')
-  if (html.includes('js/public-gallery.js')) return
-  if (!html.includes('public-gallery.css')) {
-    html = html.replace(
-      '</head>',
-      '    <link rel="stylesheet" href="./css/public-gallery.css?v=2" />\n  </head>',
-    )
-  }
-  if (!html.includes('js/public-gallery.js')) {
-    html = html.replace(
-      '</body>',
-      `    <!-- Vanilla Supabase gallery: polyfill FIRST -->
-    <script src="./js/crypto-polyfill.js?v=2"></script>
-    <script src="./js/supabase-config.js?v=2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="./js/supabase-client.js?v=2"></script>
-    <script src="./js/public-gallery.js?v=2"></script>
-  </body>`,
-    )
-  }
-  writeFileSync(htmlPath, html)
+  const before = html
+  html = html.replace(/\s*<link rel="stylesheet" href="\.\/css\/public-gallery\.css[^"]*" \/>\n?/g, '\n')
+  html = html.replace(
+    /\s*<!-- Vanilla Supabase gallery[\s\S]*?<script src="\.\/js\/public-gallery\.js[^"]*"><\/script>\n?/g,
+    '\n',
+  )
+  // Also strip loose legacy script tags if comment marker missing
+  html = html.replace(/\s*<script src="\.\/js\/crypto-polyfill\.js[^"]*"><\/script>\n?/g, '\n')
+  html = html.replace(/\s*<script src="\.\/js\/supabase-config\.js[^"]*"><\/script>\n?/g, '\n')
+  html = html.replace(
+    /\s*<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2\/dist\/umd\/supabase\.min\.js"><\/script>\n?/g,
+    '\n',
+  )
+  html = html.replace(/\s*<script src="\.\/js\/supabase-client\.js[^"]*"><\/script>\n?/g, '\n')
+  html = html.replace(/\s*<script src="\.\/js\/public-gallery\.js[^"]*"><\/script>\n?/g, '\n')
+  if (html !== before) writeFileSync(htmlPath, html)
 }
 
-injectVanillaGallery('index.html')
-injectVanillaGallery(join('docs', 'index.html'))
+stripLegacyVanillaGallery('index.html')
+stripLegacyVanillaGallery(join('docs', 'index.html'))
 
 function injectAdminRedirect(htmlPath) {
   if (!existsSync(htmlPath)) return
@@ -105,7 +102,7 @@ function injectAdminRedirect(htmlPath) {
 injectAdminRedirect('index.html')
 injectAdminRedirect(join('docs', 'index.html'))
 
-// Copy static vanilla admin/gallery assets into docs/ for Pages folder option
+// Copy static vanilla admin assets into docs/ for Pages folder option
 for (const file of ['admin.html', 'VANILLA-GALLERY.md']) {
   if (existsSync(file)) copy(file, join('docs', file))
 }
@@ -125,15 +122,13 @@ for (const file of [
 ]) {
   if (existsSync(file)) copy(file, join('docs', file))
 }
-if (existsSync('supabase/setup.sql')) copy('supabase/setup.sql', join('docs', 'supabase', 'setup.sql'))
-if (existsSync('supabase/fix-upload.sql')) {
-  copy('supabase/fix-upload.sql', join('docs', 'supabase', 'fix-upload.sql'))
-}
-if (existsSync('supabase/fix-gallery-images-rls.sql')) {
-  copy(
-    'supabase/fix-gallery-images-rls.sql',
-    join('docs', 'supabase', 'fix-gallery-images-rls.sql'),
-  )
+for (const file of [
+  'supabase/setup.sql',
+  'supabase/fix-upload.sql',
+  'supabase/fix-gallery-images-rls.sql',
+  'supabase/add-gallery-category.sql',
+]) {
+  if (existsSync(file)) copy(file, join('docs', file))
 }
 
-console.log('Synced dist → docs/ and repo root for GitHub Pages (+ vanilla gallery assets)')
+console.log('Synced dist → docs/ and repo root for GitHub Pages (unified Realizace gallery)')

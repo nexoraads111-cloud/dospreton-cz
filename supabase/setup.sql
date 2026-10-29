@@ -8,8 +8,12 @@ create table if not exists public.gallery_images (
   id uuid primary key default gen_random_uuid(),
   storage_path text not null unique,
   alt_text text,
+  category text not null default 'obklady',
   created_at timestamptz not null default now()
 );
+
+alter table public.gallery_images
+  add column if not exists category text not null default 'obklady';
 
 create index if not exists gallery_images_created_at_idx
   on public.gallery_images (created_at desc);

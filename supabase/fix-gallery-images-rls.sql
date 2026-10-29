@@ -11,8 +11,12 @@ create table if not exists public.gallery_images (
   id uuid primary key default gen_random_uuid(),
   storage_path text not null unique,
   alt_text text,
+  category text not null default 'obklady',
   created_at timestamptz not null default now()
 );
+
+alter table public.gallery_images
+  add column if not exists category text not null default 'obklady';
 
 -- If an older schema added user_id with a strict policy, keep the column nullable
 -- so inserts that omit it still succeed. Do not require auth.uid() = user_id.
