@@ -1,21 +1,22 @@
 import { company } from '../company'
 import { photos } from '../photos'
 
-const HERO_IMG = photos.hero
-
 export default function Hero() {
   return (
     <section id="domu" className="hero">
       <div className="hero__media" aria-hidden="true">
-        <img
-          src={HERO_IMG}
-          alt=""
-          className="hero__img"
-          width={1600}
-          height={1067}
-          fetchPriority="high"
-          decoding="async"
-        />
+        <picture>
+          <source srcSet={photos.hero} type="image/webp" />
+          <img
+            src={photos.heroJpg}
+            alt=""
+            className="hero__img"
+            width={1200}
+            height={800}
+            fetchPriority="high"
+            decoding="async"
+          />
+        </picture>
         <div className="hero__overlay" />
         <div className="hero__grain" />
         <div className="hero__diagonal" />

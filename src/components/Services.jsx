@@ -53,8 +53,9 @@ export default function Services() {
                   alt={service.title}
                   loading="lazy"
                   decoding="async"
-                  width={640}
-                  height={800}
+                  width={480}
+                  height={600}
+                  sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 25vw"
                 />
               </button>
               <div className="service-card__body">

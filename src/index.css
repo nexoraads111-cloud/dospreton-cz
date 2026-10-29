@@ -87,6 +87,15 @@ button {
   background: var(--black-soft);
 }
 
+/* Skip offscreen paint work below the fold */
+.services,
+.realizations,
+.about,
+.contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
 .section-eyebrow {
   font-family: var(--display);
   font-weight: 700;
@@ -274,21 +283,28 @@ button {
   font-size: 1.05rem;
 }
 
-/* Header */
+/* Header — no backdrop-filter (it traps position:fixed descendants) */
 .site-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 50;
+  z-index: 200;
   height: var(--header-h);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.18));
+  pointer-events: none;
+}
+
+.site-header__bar {
+  position: relative;
+  z-index: 3;
+  height: var(--header-h);
+  pointer-events: auto;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.22));
   transition: background 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
-.site-header.is-scrolled,
-.site-header.is-open {
-  background: rgba(5, 5, 5, 0.94);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
+.site-header.is-scrolled .site-header__bar,
+.site-header.is-open .site-header__bar {
+  background: #050505;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
 }
 
 .site-header__inner {
@@ -299,6 +315,12 @@ button {
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 1.25rem;
+}
+
+html.nav-open,
+html.nav-open body {
+  overflow: hidden;
+  touch-action: none;
 }
 
 .site-nav__list {
@@ -372,12 +394,16 @@ button {
 }
 
 .menu-toggle {
-  width: 44px;
-  height: 44px;
+  position: relative;
+  z-index: 4;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-content: center;
   gap: 5px;
   justify-self: end;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .menu-toggle span {
@@ -386,6 +412,7 @@ button {
   height: 2px;
   background: var(--white);
   transition: transform 0.25s var(--ease), opacity 0.25s var(--ease);
+  pointer-events: none;
 }
 
 .site-header.is-open .menu-toggle span:nth-child(1) {
@@ -398,18 +425,50 @@ button {
   transform: translateY(-7px) rotate(-45deg);
 }
 
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease), visibility 0.3s var(--ease);
+}
+
+.mobile-nav-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
 .mobile-nav {
   position: fixed;
-  inset: var(--header-h) 0 0;
-  background: rgba(5, 5, 5, 0.98);
-  padding: 1.5rem;
-  transform: translateX(100%);
-  transition: transform 0.35s var(--ease);
+  top: var(--header-h);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  max-width: 100%;
+  background: #050505;
+  padding: 1.25rem 1.5rem 2rem;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  transform: translate3d(100%, 0, 0);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.35s var(--ease), visibility 0.35s var(--ease);
 }
 
 .mobile-nav.is-open {
-  transform: none;
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .mobile-nav a {
@@ -421,12 +480,23 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  touch-action: manipulation;
 }
 
 .mobile-nav__contact {
   display: grid;
   gap: 0.85rem;
   margin-top: 1.5rem;
+}
+
+.mobile-nav__contact a:not(.btn) {
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-family: var(--font);
+  font-weight: 500;
+  border-bottom: 0;
+  color: var(--muted);
 }
 
 @media (min-width: 980px) {
@@ -437,8 +507,9 @@ button {
     display: inline-flex;
   }
   .menu-toggle,
-  .mobile-nav {
-    display: none;
+  .mobile-nav,
+  .mobile-nav-backdrop {
+    display: none !important;
   }
 }
 
@@ -463,16 +534,21 @@ button {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.03);
-  animation: heroZoom 18s var(--ease) infinite alternate;
 }
 
-@keyframes heroZoom {
-  from {
-    transform: scale(1.02);
+@media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+  .hero__img {
+    transform: scale(1.03);
+    animation: heroZoom 18s var(--ease) infinite alternate;
   }
-  to {
-    transform: scale(1.08);
+
+  @keyframes heroZoom {
+    from {
+      transform: scale(1.02);
+    }
+    to {
+      transform: scale(1.08);
+    }
   }
 }
 
@@ -926,10 +1002,15 @@ button {
 .contact__bg {
   position: absolute;
   inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: grayscale(0.2) brightness(0.35);
   z-index: -2;
+  overflow: hidden;
+}
+
+.contact__bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(0.2) brightness(0.35);
 }
 
 .contact__shade {

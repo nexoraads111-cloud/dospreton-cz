@@ -1,4 +1,4 @@
-/** Client project photos — cropped from collages, no Unsplash. */
+/** Client project photos — WebP primary for perf, paths under /photos. */
 
 export const CATEGORIES = [
   { id: 'all', label: 'Vše' },
@@ -13,99 +13,99 @@ export const gallery = [
   {
     id: 'bath-01',
     title: 'Koupelna — obklady',
-    image: '/photos/bath-01-wide.jpg',
+    image: '/photos/bath-01-wide.webp',
     category: 'koupelny',
   },
   {
     id: 'bath-02',
     title: 'Koupelna — vchod a vana',
-    image: '/photos/bath-02-doorway.jpg',
+    image: '/photos/bath-02-doorway.webp',
     category: 'koupelny',
   },
   {
     id: 'bath-03',
     title: 'Technická místnost',
-    image: '/photos/bath-03-plumbing.jpg',
+    image: '/photos/bath-03-plumbing.webp',
     category: 'koupelny',
   },
   {
     id: 'bath-04',
     title: 'Koupelna — nika',
-    image: '/photos/bath-04-niche.jpg',
+    image: '/photos/bath-04-niche.webp',
     category: 'koupelny',
   },
   {
     id: 'bath-05',
     title: 'Koupelna — vana a instalace',
-    image: '/photos/bath-05-tub-side.jpg',
+    image: '/photos/bath-05-tub-side.webp',
     category: 'koupelny',
   },
   {
     id: 'tiling-01',
     title: 'Schodiště — pohled nahoru',
-    image: '/photos/tiling-01-stairs-up.jpg',
+    image: '/photos/tiling-01-stairs-up.webp',
     category: 'schody',
   },
   {
     id: 'tiling-02',
     title: 'Schodiště — pohled dolů',
-    image: '/photos/tiling-02-stairs-down.jpg',
+    image: '/photos/tiling-02-stairs-down.webp',
     category: 'schody',
   },
   {
     id: 'tiling-03',
     title: 'Chodba a podesty',
-    image: '/photos/tiling-03-landing.jpg',
+    image: '/photos/tiling-03-landing.webp',
     category: 'schody',
   },
   {
     id: 'tiling-04',
     title: 'Chodba — dlažba',
-    image: '/photos/tiling-04-hallway.jpg',
+    image: '/photos/tiling-04-hallway.webp',
     category: 'obklady',
   },
   {
     id: 'tiling-05',
     title: 'Balkon — dlažba',
-    image: '/photos/tiling-05-yellow-nook.jpg',
+    image: '/photos/tiling-05-yellow-nook.webp',
     category: 'obklady',
   },
   {
     id: 'tiling-06',
     title: 'Schodiště — detail',
-    image: '/photos/tiling-06-stairs-tight.jpg',
+    image: '/photos/tiling-06-stairs-tight.webp',
     category: 'schody',
   },
   {
     id: 'tiling-07',
     title: 'Terasa — dlažba',
-    image: '/photos/tiling-07-patio.jpg',
+    image: '/photos/tiling-07-patio.webp',
     category: 'obklady',
   },
   {
     id: 'tiling-08',
     title: 'Kamenný chodník a obklad',
-    image: '/photos/tiling-08-stone-walkway.jpg',
+    image: '/photos/tiling-08-stone-walkway.webp',
     category: 'kamen',
   },
   {
     id: 'tiling-09',
     title: 'Kamenný obklad — roh',
-    image: '/photos/tiling-09-stone-corner.jpg',
+    image: '/photos/tiling-09-stone-corner.webp',
     category: 'kamen',
   },
 ]
 
 export const photos = {
-  /** Full-bleed hero — bathroom atmosphere matching redesign mockup */
-  hero: '/photos/bath-01-wide.jpg',
-  about: '/photos/tiling-05-yellow-nook.jpg',
-  contactBg: '/photos/tiling-09-stone-corner.jpg',
+  hero: '/photos/bath-01-wide.webp',
+  heroJpg: '/photos/bath-01-hero.jpg',
+  about: '/photos/tiling-05-yellow-nook.webp',
+  contactBg: '/photos/tiling-09-stone-corner.webp',
   services: {
-    tiles: '/photos/tiling-04-hallway.jpg',
-    bathroom: '/photos/bath-02-doorway.jpg',
-    facade: '/photos/tiling-09-stone-corner.jpg',
-    stairs: '/photos/tiling-01-stairs-up.jpg',
+    tiles: '/photos/tiling-04-hallway.webp',
+    bathroom: '/photos/bath-02-doorway.webp',
+    facade: '/photos/tiling-09-stone-corner.webp',
+    stairs: '/photos/tiling-01-stairs-up.webp',
   },
   realizations: gallery,
 }

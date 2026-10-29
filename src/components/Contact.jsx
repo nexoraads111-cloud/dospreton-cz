@@ -17,11 +17,16 @@ export default function Contact() {
 
   return (
     <footer id="kontakt" className="contact" ref={ref}>
-      <div
-        className="contact__bg"
-        aria-hidden="true"
-        style={{ backgroundImage: `url(${photos.contactBg})` }}
-      />
+      <div className="contact__bg" aria-hidden="true">
+        <img
+          src={photos.contactBg}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          width={900}
+          height={700}
+        />
+      </div>
       <div className="contact__shade" aria-hidden="true" />
 
       <div className={`container contact__inner ${inView ? 'is-visible' : ''}`}>

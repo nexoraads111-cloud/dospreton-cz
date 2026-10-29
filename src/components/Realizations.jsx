@@ -79,8 +79,9 @@ export default function Realizations() {
                     alt={item.title}
                     loading="lazy"
                     decoding="async"
-                    width={640}
-                    height={480}
+                    width={480}
+                    height={360}
+                    sizes="(max-width: 860px) 50vw, (max-width: 1100px) 33vw, 25vw"
                   />
                   <span className="gallery-card__caption">
                     <span>{item.title}</span>

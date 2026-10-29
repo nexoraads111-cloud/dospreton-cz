@@ -17,16 +17,30 @@
       property="og:description"
       content="Obklady a dlažby, rekonstrukce koupelen a stavební práce. Praha a okolí · práce po celé ČR."
     />
-    <meta property="og:image" content="./assets/bath-01-wide-YolpWrrv.jpg" />
+    <meta property="og:image" content="./assets/bath-01-hero-B0ur20vz.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="https://dospreton-stav.cz/" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Non-blocking fonts: media swap after load -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Manrope:wght@400;600;700&display=swap"
     />
-    <link rel="preload" as="image" href="./photos/bath-01-wide.jpg" fetchpriority="high" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Manrope:wght@400;600;700&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Manrope:wght@400;600;700&display=swap"
+      />
+    </noscript>
+    <link rel="preload" as="image" href="./photos/bath-01-wide.webp" type="image/webp" fetchpriority="high" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -47,8 +61,8 @@
       }
     </script>
         <script src="./js/supabase-config.js?v=4"></script>
-    <script type="module" crossorigin src="./assets/index-BNfNpfm8.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-MuLg7hoB.css">
+    <script type="module" crossorigin src="./assets/index-B4f3kQvk.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CQflN29u.css">
   </head>
   <body>
     <div id="root"></div>
