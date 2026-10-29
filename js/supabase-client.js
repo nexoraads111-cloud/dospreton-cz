@@ -128,7 +128,7 @@
     }
     if (!userId) throw new Error('Chybí user id — nejste přihlášeni.')
 
-    const path = `${userId}/${crypto.randomUUID()}.${ext}`
+    const path = `${userId}/${uuidv4()}.${ext}`
     const { error: uploadError } = await db.storage.from(GALLERY_BUCKET).upload(path, normalized, {
       contentType: normalized.type,
       upsert: false,
