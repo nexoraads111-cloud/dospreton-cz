@@ -19,11 +19,22 @@ supabase functions deploy review-action --project-ref vxitorpldzfwtexzswde
 
 | Secret | Required | Notes |
 |--------|----------|--------|
-| `RESEND_API_KEY` | **Yes** for email | From [resend.com](https://resend.com) — **ask user/coordinator; do not invent** |
+| `RESEND_API_KEY` | **Yes** for email | From [resend.com](https://resend.com) — **never commit to git** |
 | `REVIEW_ACTION_SECRET` | **Yes** | Long random string (≥32 chars), e.g. `openssl rand -hex 32` |
-| `REVIEW_NOTIFY_EMAIL` | Optional | Default `dospreton.stav.cz@gmail.com` |
+| `REVIEW_NOTIFY_EMAIL` | Optional | Default / production: `dospreton.stav.cz@gmail.com` |
 | `SITE_URL` | Optional | Default `http://dospreton-stav.cz` (use `https://…` after SSL) |
-| `REVIEW_FROM_EMAIL` | Optional | Default `DOSPRETON <onboarding@resend.dev>` until a verified domain in Resend |
+| `REVIEW_FROM_EMAIL` | Optional | Until domain verified: `DOSPRETON <onboarding@resend.dev>` (**only delivers to the Resend account owner**). After verifying a domain: e.g. `DOSPRETON <recenze@dospreton-stav.cz>` |
+
+### Resend domain (required for production inbox)
+
+With `from: onboarding@resend.dev`, Resend **only** allows sending to the account owner (`nexora.ads111@gmail.com`).  
+To deliver approval emails to **`dospreton.stav.cz@gmail.com`**:
+
+1. Open [resend.com/domains](https://resend.com/domains) → **Add domain** `dospreton-stav.cz` (or a subdomain).
+2. Add the DNS records Resend shows (Forpsi).
+3. Wait until domain is **Verified**.
+4. Set Edge secret `REVIEW_FROM_EMAIL` to something like `DOSPRETON <recenze@dospreton-stav.cz>` (must use that domain).
+5. Keep `REVIEW_NOTIFY_EMAIL=dospreton.stav.cz@gmail.com`.
 
 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_ANON_KEY` are usually injected automatically for Edge Functions.
 

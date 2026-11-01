@@ -132,6 +132,12 @@ Deno.serve(async (req) => {
         const detail = await res.text()
         console.error('Resend error', res.status, detail)
         emailSkippedReason = `E-mail se nepodařilo odeslat (${res.status}). Recenze zůstává pending.`
+        // Common: onboarding@resend.dev can only send to the Resend account owner
+        // until a custom domain is verified.
+        if (/verify a domain|own email address/i.test(detail)) {
+          emailSkippedReason +=
+            ' Ověřte doménu v Resend a nastavte REVIEW_FROM_EMAIL (např. recenze@dospreton-stav.cz).'
+        }
       } else {
         emailSent = true
       }

@@ -1,6 +1,6 @@
--- DOSPRETON reviews (otzivy)
+-- DOSPRETON reviews (otzivy / recenze)
 -- Supabase → SQL Editor → Run this entire script once.
--- Public site shows only status = 'approved'. Submissions go through Edge Function.
+-- Public site shows only status = 'approved'.
 
 create extension if not exists pgcrypto;
 
@@ -22,9 +22,27 @@ create index if not exists reviews_approved_created_at_idx
 
 create index if not exists reviews_status_idx on public.reviews (status);
 
+-- Force every client insert to pending (never allow self-approve)
+create or replace function public.reviews_force_pending()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.status := 'pending';
+  new.decided_at := null;
+  new.decided_action := null;
+  return new;
+end;
+$$;
+
+drop trigger if exists reviews_force_pending_trg on public.reviews;
+create trigger reviews_force_pending_trg
+  before insert on public.reviews
+  for each row
+  execute function public.reviews_force_pending();
+
 alter table public.reviews enable row level security;
 
--- Drop prior policies (name-safe)
 do $$
 declare r record;
 begin
@@ -43,8 +61,13 @@ create policy "reviews_select_approved"
   to anon, authenticated
   using (status = 'approved');
 
--- No direct client INSERT/UPDATE/DELETE — Edge Functions use service_role (bypasses RLS)
+-- Anyone can insert a new review (trigger forces status=pending)
+create policy "reviews_insert_pending"
+  on public.reviews
+  for insert
+  to anon, authenticated
+  with check (true);
 
 grant usage on schema public to anon, authenticated;
-grant select on table public.reviews to anon, authenticated;
--- service_role already has full access
+grant select, insert on table public.reviews to anon, authenticated;
+-- Updates (approve/reject) only via service_role / Edge Function

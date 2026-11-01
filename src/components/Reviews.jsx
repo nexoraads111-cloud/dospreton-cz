@@ -71,13 +71,13 @@ export default function Reviews() {
     <section id="recenze" className="reviews section section--dark" ref={ref}>
       <div className="container">
         <header className={`section-head ${inView ? 'is-visible' : ''}`}>
-          <p className="section-eyebrow section-eyebrow--gold">REFERENCE</p>
+          <p className="section-eyebrow section-eyebrow--gold">RECENZE</p>
           <h2 className="section-title section-title--light">
             Co říkají <em>zákazníci</em>
           </h2>
           <p className="reviews__lead">
-            Přečtěte si zkušenosti klientů — nebo nám zanechte svou recenzi. Před zveřejněním ji
-            schválíme.
+            Přečtěte si zkušenosti klientů. Chcete přidat vlastní? Vyplňte formulář níže — před
+            zveřejněním recenzi schválíme.
           </p>
         </header>
 
@@ -109,8 +109,12 @@ export default function Reviews() {
           <p className="reviews__empty">Zatím tu nejsou schválené recenze — buďte první.</p>
         )}
 
-        <form className={`reviews__form ${inView ? 'is-visible' : ''}`} onSubmit={onSubmit}>
-          <h3>Napsat recenzi</h3>
+        <form
+          id="zanechat-recenzi"
+          className={`reviews__form ${inView ? 'is-visible' : ''}`}
+          onSubmit={onSubmit}
+        >
+          <h3>Zanechat recenzi</h3>
           <label>
             Jméno
             <input

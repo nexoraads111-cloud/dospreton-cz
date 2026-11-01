@@ -18,7 +18,6 @@ function readConfig() {
 
 /**
  * Public approved reviews for the Recenze section.
- * @returns {Promise<Array<{ id: string, authorName: string, body: string, rating: number, createdAt: string }>>}
  */
 export async function fetchApprovedReviews() {
   if (!isSupabaseConfigured || !db) return []
@@ -41,15 +40,7 @@ export async function fetchApprovedReviews() {
   }))
 }
 
-/**
- * Submit a review via Edge Function (pending + admin email).
- */
-export async function submitReview({ authorName, body, rating }) {
-  const { url, anonKey } = readConfig()
-  if (!url || !anonKey) {
-    throw new Error('Supabase není nakonfigurován.')
-  }
-
+async function submitViaEdgeFunction({ authorName, body, rating, url, anonKey }) {
   const res = await fetch(`${url}/functions/v1/submit-review`, {
     method: 'POST',
     headers: {
@@ -71,9 +62,56 @@ export async function submitReview({ authorName, body, rating }) {
     payload = null
   }
 
-  if (!res.ok) {
-    const msg = payload?.error || `Odeslání selhalo (${res.status}).`
-    throw new Error(msg)
+  if (res.status === 404) {
+    const err = new Error('edge_missing')
+    err.code = 'edge_missing'
+    throw err
   }
-  return payload
+
+  if (!res.ok) {
+    throw new Error(payload?.error || `Odeslání selhalo (${res.status}).`)
+  }
+  return { ...payload, via: 'edge' }
+}
+
+async function submitViaTable({ authorName, body, rating }) {
+  if (!db) throw new Error('Supabase není nakonfigurován.')
+  const { data, error } = await db
+    .from('reviews')
+    .insert({
+      author_name: authorName,
+      body,
+      rating,
+      status: 'pending',
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(error.message || 'Uložení recenze se nezdařilo.')
+  return {
+    ok: true,
+    id: data?.id,
+    via: 'table',
+    emailSent: false,
+    message:
+      'Děkujeme. Recenze byla uložena a po schválení se zobrazí na webu.',
+  }
+}
+
+/**
+ * Prefer Edge Function (email Accept/Cancel). Fall back to direct pending insert.
+ */
+export async function submitReview({ authorName, body, rating }) {
+  const { url, anonKey } = readConfig()
+  if (!url || !anonKey) {
+    throw new Error('Supabase není nakonfigurován.')
+  }
+
+  try {
+    return await submitViaEdgeFunction({ authorName, body, rating, url, anonKey })
+  } catch (err) {
+    if (err?.code === 'edge_missing' || /Failed to fetch|NetworkError|404/i.test(err?.message || '')) {
+      return submitViaTable({ authorName, body, rating })
+    }
+    throw err
+  }
 }
