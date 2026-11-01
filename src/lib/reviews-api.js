@@ -16,6 +16,15 @@ function readConfig() {
   return fromEnv
 }
 
+function normalizeRating(rating) {
+  if (rating === undefined || rating === null || rating === '') return null
+  const n = Number(rating)
+  if (!Number.isInteger(n) || n < 1 || n > 5) {
+    throw new Error('Hodnocení musí být 1–5, nebo prázdné.')
+  }
+  return n
+}
+
 /**
  * Public approved reviews for the Recenze section.
  */
@@ -28,6 +37,10 @@ export async function fetchApprovedReviews() {
     .order('created_at', { ascending: false })
     .limit(40)
   if (error) {
+    // Table not created yet — show empty list, keep CTA usable once SQL is run
+    if (error.code === 'PGRST205' || /Could not find the table/i.test(error.message || '')) {
+      return []
+    }
     console.error('Reviews fetch error:', error)
     throw error
   }
@@ -41,6 +54,12 @@ export async function fetchApprovedReviews() {
 }
 
 async function submitViaEdgeFunction({ authorName, body, rating, url, anonKey }) {
+  const payloadBody = {
+    author_name: authorName,
+    body,
+  }
+  if (rating != null) payloadBody.rating = rating
+
   const res = await fetch(`${url}/functions/v1/submit-review`, {
     method: 'POST',
     headers: {
@@ -48,11 +67,7 @@ async function submitViaEdgeFunction({ authorName, body, rating, url, anonKey })
       apikey: anonKey,
       Authorization: `Bearer ${anonKey}`,
     },
-    body: JSON.stringify({
-      author_name: authorName,
-      body,
-      rating,
-    }),
+    body: JSON.stringify(payloadBody),
   })
 
   let payload = null
@@ -76,24 +91,28 @@ async function submitViaEdgeFunction({ authorName, body, rating, url, anonKey })
 
 async function submitViaTable({ authorName, body, rating }) {
   if (!db) throw new Error('Supabase není nakonfigurován.')
-  const { data, error } = await db
-    .from('reviews')
-    .insert({
-      author_name: authorName,
-      body,
-      rating,
-      status: 'pending',
-    })
-    .select('id')
-    .single()
-  if (error) throw new Error(error.message || 'Uložení recenze se nezdařilo.')
+  const row = {
+    author_name: authorName,
+    body,
+    status: 'pending',
+  }
+  if (rating != null) row.rating = rating
+
+  const { data, error } = await db.from('reviews').insert(row).select('id').single()
+  if (error) {
+    if (error.code === 'PGRST205' || /Could not find the table/i.test(error.message || '')) {
+      throw new Error(
+        'Tabulka recenzí ještě není připravená. Spusťte supabase/reviews.sql v Supabase.',
+      )
+    }
+    throw new Error(error.message || 'Uložení recenze se nezdařilo.')
+  }
   return {
     ok: true,
     id: data?.id,
     via: 'table',
     emailSent: false,
-    message:
-      'Děkujeme. Recenze byla uložena a po schválení se zobrazí na webu.',
+    message: 'Děkujeme. Recenze byla uložena a po schválení se zobrazí na webu.',
   }
 }
 
@@ -106,11 +125,19 @@ export async function submitReview({ authorName, body, rating }) {
     throw new Error('Supabase není nakonfigurován.')
   }
 
+  const normalizedRating = normalizeRating(rating)
+
   try {
-    return await submitViaEdgeFunction({ authorName, body, rating, url, anonKey })
+    return await submitViaEdgeFunction({
+      authorName,
+      body,
+      rating: normalizedRating,
+      url,
+      anonKey,
+    })
   } catch (err) {
     if (err?.code === 'edge_missing' || /Failed to fetch|NetworkError|404/i.test(err?.message || '')) {
-      return submitViaTable({ authorName, body, rating })
+      return submitViaTable({ authorName, body, rating: normalizedRating })
     }
     throw err
   }

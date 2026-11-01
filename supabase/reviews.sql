@@ -8,13 +8,47 @@ create table if not exists public.reviews (
   id uuid primary key default gen_random_uuid(),
   author_name text not null check (char_length(trim(author_name)) between 2 and 80),
   body text not null check (char_length(trim(body)) between 10 and 2000),
-  rating smallint not null default 5 check (rating between 1 and 5),
+  -- Optional rating: 1–5, or null when visitor skips
+  rating smallint check (rating is null or rating between 1 and 5),
   status text not null default 'pending'
     check (status in ('pending', 'approved', 'rejected')),
   created_at timestamptz not null default now(),
   decided_at timestamptz,
   decided_action text check (decided_action is null or decided_action in ('approve', 'reject'))
 );
+
+-- Idempotent upgrades if an older NOT NULL rating column exists
+do $$
+begin
+  alter table public.reviews alter column rating drop not null;
+exception
+  when undefined_table then null;
+  when undefined_column then null;
+  when others then null;
+end $$;
+
+do $$
+declare r record;
+begin
+  for r in
+    select c.conname
+    from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where n.nspname = 'public'
+      and t.relname = 'reviews'
+      and c.contype = 'c'
+      and pg_get_constraintdef(c.oid) ilike '%rating%'
+  loop
+    execute format('alter table public.reviews drop constraint %I', r.conname);
+  end loop;
+  alter table public.reviews
+    add constraint reviews_rating_range_chk
+    check (rating is null or rating between 1 and 5);
+exception
+  when undefined_table then null;
+  when duplicate_object then null;
+end $$;
 
 create index if not exists reviews_approved_created_at_idx
   on public.reviews (created_at desc)
