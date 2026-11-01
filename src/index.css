@@ -1004,6 +1004,21 @@ html.nav-open body {
   margin-bottom: 1.5rem;
 }
 
+.reviews__cta {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s var(--ease), transform 0.55s var(--ease);
+}
+
+.reviews__cta.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
 .reviews__grid {
   display: grid;
   gap: 1rem;
@@ -1053,27 +1068,13 @@ html.nav-open body {
 .reviews__form {
   display: grid;
   gap: 1rem;
-  max-width: 560px;
-  padding: 1.35rem;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(224, 180, 58, 0.25);
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
 }
 
-.reviews__form.is-visible {
-  opacity: 1;
-  transform: none;
-}
-
-.reviews__form h3 {
-  font-family: var(--display);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-size: 1.35rem;
-  color: var(--white);
+.reviews__form--modal {
+  max-width: none;
+  padding: 0;
+  background: transparent;
+  border: 0;
 }
 
 .reviews__form label,
@@ -1121,6 +1122,7 @@ html.nav-open body {
   align-items: center;
   gap: 0.35rem;
   margin-right: 0.85rem;
+  margin-bottom: 0.35rem;
   grid-auto-flow: column;
 }
 
@@ -1141,6 +1143,97 @@ html.nav-open body {
   margin: 0;
   font-size: 0.85rem;
   color: var(--muted);
+  max-width: 28rem;
+}
+
+.review-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(224, 180, 58, 0.12), transparent 55%),
+    rgba(5, 5, 5, 0.78);
+  backdrop-filter: blur(2px);
+  animation: review-modal-in 0.28s var(--ease);
+}
+
+@keyframes review-modal-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.review-modal__panel {
+  position: relative;
+  width: min(100%, 520px);
+  max-height: min(92vh, 760px);
+  overflow: auto;
+  padding: 1.5rem 1.35rem 1.4rem;
+  background:
+    linear-gradient(165deg, rgba(26, 26, 26, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
+  border: 1px solid rgba(224, 180, 58, 0.35);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  animation: review-panel-in 0.34s var(--ease);
+}
+
+@keyframes review-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.review-modal__panel h3 {
+  margin: 0 2rem 0.55rem 0;
+  font-family: var(--display);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: clamp(1.25rem, 3vw, 1.55rem);
+  color: var(--white);
+}
+
+.review-modal__lead {
+  margin: 0 0 1.15rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.review-modal__close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.7rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.review-modal__close:hover,
+.review-modal__close:focus-visible {
+  color: var(--gold);
+}
+
+.review-modal__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
 }
 
 @media (min-width: 860px) {

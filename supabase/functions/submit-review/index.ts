@@ -51,16 +51,20 @@ Deno.serve(async (req) => {
     const payload = await req.json().catch(() => null)
     const author_name = String(payload?.author_name || '').trim()
     const body = String(payload?.body || '').trim()
-    const rating = Number(payload?.rating ?? 5)
+    // Optional rating: omit / null / "" → null; otherwise 1–5
+    let rating: number | null = null
+    if (payload?.rating !== undefined && payload?.rating !== null && payload?.rating !== '') {
+      rating = Number(payload.rating)
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        return json({ error: 'Hodnocení musí být 1–5, nebo prázdné.' }, 400)
+      }
+    }
 
     if (author_name.length < 2 || author_name.length > 80) {
       return json({ error: 'Jméno musí mít 2–80 znaků.' }, 400)
     }
     if (body.length < 10 || body.length > 2000) {
       return json({ error: 'Text recenze musí mít 10–2000 znaků.' }, 400)
-    }
-    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-      return json({ error: 'Hodnocení musí být 1–5.' }, 400)
     }
 
     const admin = createClient(supabaseUrl, serviceKey, {
@@ -100,12 +104,15 @@ Deno.serve(async (req) => {
         'RESEND_API_KEY chybí — recenze je uložená jako pending, e-mail neodeslán.'
       console.warn(emailSkippedReason)
     } else {
-      const stars = '★'.repeat(row.rating) + '☆'.repeat(5 - row.rating)
+      const ratingLabel =
+        row.rating == null
+          ? 'bez hodnocení'
+          : `${'★'.repeat(row.rating)}${'☆'.repeat(5 - row.rating)} (${row.rating}/5)`
       const html = `
         <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#111">
           <h2 style="margin:0 0 12px">Nová recenze — DOSPRETON</h2>
           <p style="margin:0 0 8px"><strong>Jméno:</strong> ${escapeHtml(row.author_name)}</p>
-          <p style="margin:0 0 8px"><strong>Hodnocení:</strong> ${stars} (${row.rating}/5)</p>
+          <p style="margin:0 0 8px"><strong>Hodnocení:</strong> ${escapeHtml(ratingLabel)}</p>
           <p style="margin:0 0 16px;white-space:pre-wrap;background:#f6f6f4;padding:12px;border-left:3px solid #e0b43a">${escapeHtml(row.body)}</p>
           <p style="margin:0 0 20px;color:#666;font-size:13px">Web: ${escapeHtml(siteUrl)}</p>
           <p style="margin:0 0 12px">
@@ -115,6 +122,7 @@ Deno.serve(async (req) => {
           <p style="font-size:12px;color:#888">Odkazy platí 14 dní a jsou podepsané (nelze je uhodnout).</p>
         </div>`
 
+      const subjectRating = row.rating == null ? 'bez hodnocení' : `${row.rating}/5`
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -124,7 +132,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           from: fromEmail,
           to: [notifyEmail],
-          subject: `Nová recenze od ${row.author_name} (${row.rating}/5)`,
+          subject: `Nová recenze od ${row.author_name} (${subjectRating})`,
           html,
         }),
       })

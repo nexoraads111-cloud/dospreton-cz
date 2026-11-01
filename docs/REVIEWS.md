@@ -1,6 +1,8 @@
 # Recenze (otzivy) — setup
 
-Visitor submits a review → stored as `pending` → admin email to **dospreton.stav.cz@gmail.com** with **Přijmout** / **Zrušit** (HMAC-signed links) → approve shows on `#recenze`.
+Public `#recenze` lists approved reviews. Button **Zanechat recenzi** opens a modal form → stored as `pending` → admin email to **dospreton.stav.cz@gmail.com** with **Přijmout** / **Zrušit** (HMAC-signed links) → approve shows publicly.
+
+Rating is optional (1–5 or empty).
 
 ## 1. SQL
 
