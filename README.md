@@ -2,7 +2,7 @@
 
 Jednostránkový marketingový web stavební firmy **DOSPRETON s.r.o.** (Vite + React).
 
-**Live:** [http://dospreton-stav.cz/](http://dospreton-stav.cz/)  
+**Live:** [https://dospreton-stav.cz/](https://dospreton-stav.cz/) (HTTP works while custom SSL provisions — see `HTTPS-SETUP.md`)  
 (GitHub Pages; `https://nexoraads111-cloud.github.io/dospreton-cz/` redirects here)
 
 ## Lokální spuštění
