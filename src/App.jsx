@@ -4,6 +4,7 @@ import TrustBar from './components/TrustBar'
 import Services from './components/Services'
 import About from './components/About'
 import Realizations from './components/Realizations'
+import Reviews from './components/Reviews'
 import Contact from './components/Contact'
 import Lightbox from './components/Lightbox'
 import { GalleryProvider } from './gallery-context'
@@ -19,6 +20,7 @@ export default function App() {
           <TrustBar />
           <Services />
           <Realizations />
+          <Reviews />
           <About />
         </main>
         <Contact />

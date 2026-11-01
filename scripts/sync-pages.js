@@ -109,7 +109,7 @@ injectAdminRedirect('index.html')
 injectAdminRedirect(join('docs', 'index.html'))
 
 // Copy static vanilla admin assets into docs/ for Pages folder option
-for (const file of ['admin.html', 'VANILLA-GALLERY.md']) {
+for (const file of ['admin.html', 'VANILLA-GALLERY.md', 'HTTPS-SETUP.md', 'REVIEWS.md']) {
   if (existsSync(file)) copy(file, join('docs', file))
 }
 mkdirSync('docs/css', { recursive: true })
@@ -133,6 +133,7 @@ for (const file of [
   'supabase/fix-upload.sql',
   'supabase/fix-gallery-images-rls.sql',
   'supabase/add-gallery-category.sql',
+  'supabase/reviews.sql',
 ]) {
   if (existsSync(file)) copy(file, join('docs', file))
 }
