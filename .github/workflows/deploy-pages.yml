@@ -59,7 +59,7 @@ jobs:
       - name: Stage Pages artifact (repo root style)
         run: |
           mkdir -p _site
-          cp -a index.html admin.html favicon.svg CNAME .nojekyll assets photos css js supabase VANILLA-GALLERY.md _site/ 2>/dev/null || true
+          cp -a index.html admin.html favicon.svg CNAME .nojekyll assets photos css js supabase VANILLA-GALLERY.md recenze-stav.html _site/ 2>/dev/null || true
           cp -a docs/. _site/ 2>/dev/null || true
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,6 +1,8 @@
 /**
  * GET /functions/v1/review-action?id=&action=approve|reject&exp=&sig=
- * Verifies HMAC token and updates review status. Returns a simple HTML page.
+ * Verifies HMAC, updates review status, then 302-redirects to a static Czech
+ * result page on the marketing site (Supabase gateway forces text/plain on
+ * function bodies, so we cannot rely on inline HTML rendering in the browser).
  */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 import { corsHeaders } from '../_shared/cors.ts'
@@ -10,8 +12,8 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
-  if (req.method !== 'GET') {
-    return htmlPage('Metoda není povolena', 'Použijte odkaz z e-mailu.', 405)
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return redirectResult('chyba', 303)
   }
 
   try {
@@ -27,16 +29,12 @@ Deno.serve(async (req) => {
     const siteUrl = (Deno.env.get('SITE_URL') || 'http://dospreton-stav.cz').replace(/\/$/, '')
 
     if (!reviewSecret || !supabaseUrl || !serviceKey) {
-      return htmlPage('Chyba konfigurace', 'Server není správně nastaven.', 500)
+      return redirectResult('chyba', 303, siteUrl)
     }
 
     const ok = await verifyAction(reviewSecret, id, action, exp, sig)
     if (!ok) {
-      return htmlPage(
-        'Neplatný nebo prošlý odkaz',
-        'Odkaz pro schválení/zrušení není platný. Požádejte o novou recenzi nebo zkontrolujte e-mail.',
-        403,
-      )
+      return redirectResult('neplatny', 303, siteUrl)
     }
 
     const admin = createClient(supabaseUrl, serviceKey, {
@@ -50,92 +48,67 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (fetchError || !existing) {
-      return htmlPage('Recenze nenalezena', 'Tato recenze už neexistuje.', 404)
+      return redirectResult('nenalezena', 303, siteUrl)
     }
 
-    if (existing.status !== 'pending') {
-      const label =
-        existing.status === 'approved' ? 'už byla přijata' : 'už byla zrušena'
-      return htmlPage(
-        'Hotovo dříve',
-        `Recenze od „${existing.author_name}“ ${label}.`,
-        200,
-        siteUrl,
-      )
+    // Reject always hides (even if previously approved). Approve only from pending/rejected.
+    if (action === 'reject') {
+      if (existing.status === 'rejected') {
+        return redirectResult('odmitnuta', 303, siteUrl)
+      }
+      const { error: updateError } = await admin
+        .from('reviews')
+        .update({
+          status: 'rejected',
+          decided_at: new Date().toISOString(),
+          decided_action: 'reject',
+        })
+        .eq('id', id)
+
+      if (updateError) {
+        console.error(updateError)
+        return redirectResult('chyba', 303, siteUrl)
+      }
+      return redirectResult('odmitnuta', 303, siteUrl)
     }
 
-    const status = action === 'approve' ? 'approved' : 'rejected'
+    // approve
+    if (existing.status === 'approved') {
+      return redirectResult('schvalena', 303, siteUrl)
+    }
+
     const { error: updateError } = await admin
       .from('reviews')
       .update({
-        status,
+        status: 'approved',
         decided_at: new Date().toISOString(),
-        decided_action: action,
+        decided_action: 'approve',
       })
       .eq('id', id)
-      .eq('status', 'pending')
 
     if (updateError) {
       console.error(updateError)
-      return htmlPage('Chyba', 'Stav recenze se nepodařilo změnit.', 500)
+      return redirectResult('chyba', 303, siteUrl)
     }
-
-    if (action === 'approve') {
-      return htmlPage(
-        'Recenze přijata',
-        `Recenze od „${existing.author_name}“ je nyní veřejná na webu.`,
-        200,
-        siteUrl,
-      )
-    }
-    return htmlPage(
-      'Recenze zrušena',
-      `Recenze od „${existing.author_name}“ byla skryta a na webu se nezobrazí.`,
-      200,
-      siteUrl,
-    )
+    return redirectResult('schvalena', 303, siteUrl)
   } catch (err) {
     console.error(err)
-    return htmlPage('Chyba', 'Neočekávaná chyba serveru.', 500)
+    return redirectResult('chyba', 303)
   }
 })
 
-function htmlPage(title: string, message: string, status = 200, siteUrl?: string) {
-  const link = siteUrl
-    ? `<p style="margin-top:24px"><a href="${siteUrl}/#recenze" style="color:#e0b43a">Zpět na web → Recenze</a></p>`
-    : ''
-  const body = `<!doctype html>
-<html lang="cs">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>${escapeHtml(title)} · DOSPRETON</title>
-  <style>
-    body{margin:0;font-family:system-ui,sans-serif;background:#050505;color:#f5f5f5;min-height:100vh;display:grid;place-items:center;padding:1.5rem}
-    .card{max-width:420px;background:#161616;border:1px solid rgba(224,180,58,.35);padding:1.75rem}
-    h1{margin:0 0 .75rem;font-size:1.4rem;color:#e0b43a}
-    p{margin:0;line-height:1.5;color:#ccc}
-    a{color:#e0b43a}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>${escapeHtml(title)}</h1>
-    <p>${escapeHtml(message)}</p>
-    ${link}
-  </div>
-</body>
-</html>`
-  return new Response(body, {
+function redirectResult(
+  stav: 'schvalena' | 'odmitnuta' | 'neplatny' | 'nenalezena' | 'chyba',
+  status = 303,
+  siteUrl = (Deno.env.get('SITE_URL') || 'http://dospreton-stav.cz').replace(/\/$/, ''),
+) {
+  const location = `${siteUrl}/recenze-stav.html?stav=${encodeURIComponent(stav)}`
+  return new Response(null, {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+    headers: {
+      ...corsHeaders,
+      Location: location,
+      'Cache-Control': 'no-store',
+    },
   })
-}
-
-function escapeHtml(s: string): string {
-  return String(s)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
 }
