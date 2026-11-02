@@ -49,11 +49,11 @@ export default function About() {
         >
           <img
             src={photos.about}
-            alt="Realizace DOSPRETON — dlažba a obklady"
+            alt="DOSPRETON — rodinný dům, realizace a stavební práce"
             loading="lazy"
             decoding="async"
-            width={900}
-            height={1100}
+            width={1280}
+            height={720}
           />
         </button>
       </div>

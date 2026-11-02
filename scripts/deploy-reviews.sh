@@ -62,7 +62,8 @@ npx --yes supabase secrets set \
   "SITE_URL=${SITE_URL:-http://dospreton-stav.cz}"
 
 echo "==> Deploying Edge Functions…"
-npx --yes supabase functions deploy submit-review --project-ref "$PROJECT_REF"
-npx --yes supabase functions deploy review-action --project-ref "$PROJECT_REF"
+# --no-verify-jwt: email Accept/Cancel links open in a browser without a Supabase JWT
+npx --yes supabase functions deploy submit-review --project-ref "$PROJECT_REF" --no-verify-jwt
+npx --yes supabase functions deploy review-action --project-ref "$PROJECT_REF" --no-verify-jwt
 
 echo "Done. Test: open http://dospreton-stav.cz/#recenze → Zanechat recenzi"

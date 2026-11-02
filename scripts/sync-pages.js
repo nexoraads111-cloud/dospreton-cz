@@ -55,6 +55,10 @@ if (existsSync('photos')) rmSync('photos', { recursive: true, force: true })
 copy(join(dist, 'assets'), 'assets')
 if (existsSync(join(dist, 'photos'))) copy(join(dist, 'photos'), 'photos')
 if (existsSync(join(dist, 'favicon.svg'))) copy(join(dist, 'favicon.svg'), 'favicon.svg')
+// Review Accept/Cancel result page (Edge Function redirects here — avoids text/plain HTML)
+if (existsSync('recenze-stav.html')) {
+  copy('recenze-stav.html', join('docs', 'recenze-stav.html'))
+}
 writeFileSync('.nojekyll', '')
 writeFileSync('CNAME', 'dospreton-stav.cz\n')
 
