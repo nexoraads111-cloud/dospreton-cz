@@ -97,9 +97,8 @@ export const gallery = [
 ]
 
 export const photos = {
-  hero: '/photos/bath-01-wide.webp',
-  heroJpg: '/photos/bath-01-hero.jpg',
-  // Cool house exterior (About) — bathroom stays as hero brand visual
+  hero: '/photos/cool-house.webp',
+  heroJpg: '/photos/cool-house.jpg',
   about: '/photos/cool-house.jpg',
   contactBg: '/photos/tiling-09-stone-corner.webp',
   services: {
